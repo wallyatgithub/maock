@@ -89,15 +89,24 @@ int main(int argc, char *argv[]) {
       if (matched_response)
       {
           header_map headers;
-          for (auto header: matched_response->additonalHeaders)
+          for (auto header: matched_response->produce_headers(msg))
           {
               nghttp2::asio_http2::header_value hdr_val;
               hdr_val.sensitive = false;
               hdr_val.value = header.second;
               headers.insert(std::make_pair(header.first, hdr_val));
           }
+          std::string payload = matched_response->produce_payload(msg);
+          if (payload.size())
+          {
+              nghttp2::asio_http2::header_value hdr_val;
+              hdr_val.sensitive = false;
+              hdr_val.value = std::to_string(payload.size());
+              headers.insert(std::make_pair("content-length", hdr_val));
+          }
+
           res.write_head(matched_response->status_code, headers);
-          res.end(matched_response->produce_payload(msg));
+          res.end(payload);
       }
       else
       {

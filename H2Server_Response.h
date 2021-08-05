@@ -61,7 +61,7 @@ std::vector<std::string> tokenize_string(const std::string& source, const std::s
     return retVec;
 }
 
-class Payload_Argument
+class Argument
 {
 public:
     std::string json_pointer;
@@ -69,7 +69,7 @@ public:
     int64_t substring_end;
     std::string header_name;
     bool random_hex;
-    Payload_Argument(const Schema_Payload_Argument& payload_argument)
+    Argument(const Schema_Argument& payload_argument)
     {
         if (payload_argument.type_of_value == "JsonPointer")
         {
@@ -137,54 +137,68 @@ public:
     }
 };
 
+class H2Server_Response_Header
+{
+public:
+    std::vector<std::string> tokenizedHeader;
+    std::vector<Argument> header_arguments;
+    H2Server_Response_Header(const Schema_Response_Header& schema_header)
+    {
+        size_t t = schema_header.header.find(":", 1);
+        if ((t == std::string::npos) ||
+            (schema_header.header[0] == ':' && 1 == t))
+        {
+            std::cerr << "invalid header, no name: " << schema_header.header << std::endl;
+            abort();
+        }
+        std::string header_name = schema_header.header.substr(0, t);
+        std::string header_value = schema_header.header.substr(t + 1);
+
+        if (header_value.empty())
+        {
+            std::cerr << "invalid header - no value: " << schema_header.header
+                      << std::endl;
+            exit(1);
+        }
+
+        tokenizedHeader = tokenize_string(schema_header.header, schema_header.placeholder);
+        for (auto& arg : schema_header.arguments)
+        {
+            header_arguments.emplace_back(Argument(arg));
+        }
+        if (tokenizedHeader.size() - header_arguments.size() != 1)
+        {
+            std::cerr << "number of placeholders does not match number of arguments:" << staticjson::to_pretty_json_string(
+                          schema_header) << std::endl;
+            exit(1);
+        }
+    }
+};
 class H2Server_Response
 {
 public:
     uint32_t status_code;
-    std::map<std::string, std::string> additonalHeaders;
+    std::vector<H2Server_Response_Header> additonalHeaders;
     std::vector<std::string> tokenizedPayload;
-    std::vector<Payload_Argument> payload_arguments;
+    std::vector<Argument> payload_arguments;
 
     H2Server_Response(const Schema_Response_To_Return& resp)
     {
         status_code = resp.status_code;
         tokenizedPayload = tokenize_string(resp.payload.msg_payload, resp.payload.placeholder);
-        for (auto& arg : resp.payload.payload_argument)
+        for (auto& arg : resp.payload.arguments)
         {
-            payload_arguments.emplace_back(Payload_Argument(arg));
+            payload_arguments.emplace_back(Argument(arg));
         }
         if (tokenizedPayload.size() - payload_arguments.size() != 1)
         {
             std::cerr << "number of placeholders does not match number of arguments:" << staticjson::to_pretty_json_string(
                           resp) << std::endl;
-            abort();
+            exit(1);
         }
-        for (auto& header_with_value : resp.additonalHeaders)
+        for (auto& header: resp.additonalHeaders)
         {
-            size_t t = header_with_value.find(":", 1);
-            if ((t == std::string::npos) ||
-                (header_with_value[0] == ':' && 1 == t))
-            {
-                std::cerr << "invalid header, no name: " << header_with_value << std::endl;
-                continue;
-            }
-            std::string header_name = header_with_value.substr(0, t);
-            std::string header_value = header_with_value.substr(t + 1);
-            /*
-            header_value.erase(header_value.begin(), std::find_if(header_value.begin(), header_value.end(),
-                                                                  [](unsigned char ch)
-            {
-                return !std::isspace(ch);
-            }));
-            */
-
-            if (header_value.empty())
-            {
-                std::cerr << "invalid header - no value: " << header_with_value
-                          << std::endl;
-                continue;
-            }
-            additonalHeaders[header_name] = header_value;
+            additonalHeaders.emplace_back(H2Server_Response_Header(header));
         }
     }
 
@@ -200,6 +214,45 @@ public:
             }
         }
         return payload;
+    }
+
+    std::pair<std::string, std::string> produce_header(const H2Server_Response_Header& header_with_var, const H2Server_Request_Message& msg) const
+    {
+        std::string header_with_value;
+        for (size_t index = 0; index < header_with_var.tokenizedHeader.size(); index++)
+        {
+            header_with_value.append(header_with_var.tokenizedHeader[index]);
+            if (index < header_with_var.header_arguments.size())
+            {
+                header_with_value.append(header_with_var.header_arguments[index].getValue(msg));
+            }
+        }
+
+        size_t t = header_with_value.find(":", 1);
+        std::string header_name = header_with_value.substr(0, t);
+        std::string header_value = header_with_value.substr(t + 1);
+        /*
+        header_value.erase(header_value.begin(), std::find_if(header_value.begin(), header_value.end(),
+                                                              [](unsigned char ch)
+        {
+            return !std::isspace(ch);
+        }));
+        */
+        return std::make_pair<std::string, std::string>(std::move(header_name), std::move(header_value));
+
+    }
+
+    std::map<std::string, std::string> produce_headers(const H2Server_Request_Message& msg) const
+    {
+        std::map<std::string, std::string> headers;
+
+        for (auto& header_with_var : additonalHeaders)
+        {
+            auto header_with_value = produce_header(header_with_var, msg);
+
+            headers.insert(header_with_value);
+        }
+        return headers;
     }
 };
 

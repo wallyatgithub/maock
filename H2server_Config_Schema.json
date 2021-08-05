@@ -114,7 +114,7 @@
                 "type":"object",
                 "properties":{
                   "msg-payload": {
-                    "description": "The actual message payload. The payload can optionally contain a placeholder (name specified below) that has multiple instances. For example: {'name': '$VAR', 'location': '$VAR', 'ID', '$VAR'}, here, $VAR is the placeholder. Each instance of $VAR would be replaced by an actual string as instructed by arguments field, in order of occurrance",
+                    "description": "The actual message payload. The payload can optionally contain a placeholder (name specified below) that has multiple occurrences. For example: {'name': '$VAR', 'location': '$VAR', 'ID', '$VAR'}, here, $VAR is the placeholder. Each occurrence of $VAR would be replaced by an actual string as instructed by arguments field, in order of occurrance",
                     "type":"string"
                   },
                   "placeholder": {
@@ -122,7 +122,7 @@
                     "type":"string"
                   },
                   "arguments": {
-                    "description": "A list of arguments. The result of first argument would replace the first placeholder instance in msg-payload, and the result of second argument would replace the second placeholder instance, and so on. The number of arguments here should match the number of placeholder instances in msg-payload",
+                    "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences in header",
                     "type":"array",
                     "minItems":0,
                     "items": {
@@ -135,7 +135,7 @@
                           "enum": ["JsonPointer", "Header", "RandomHex"]
                         },
                         "value-identifier":{
-                          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request",
+                          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is RandomHex",
                           "type":"string"
                         },
                         "sub-string-start":{
@@ -154,10 +154,51 @@
                 }
               },
               "additonalHeaders":{
-              "description": "additional headers to be returned. Valid format for each header: pair of strings with : in the middle; for example: Content-type: Application/json",
-              "type": "array",
-              "items": {
-                 "type": "string"
+                "description": "additional headers to be returned.",
+                "type": "array",
+                "minItems":0,
+                "items": {
+                  "type":"object",
+                  "properties":{
+                    "header": {
+                      "description": "Valid format for each header: a pair of strings with colon (:) in the middle; for example: Content-type: Application/json. The value part, which is after the colon, can optionally contain a placeholder (name specified below) that has multiple occurrences. For example: location:http://192.168.1.2.3.4/$VAR, here, $VAR is the placeholder. Each occurrence of $VAR would be replaced by an actual string as instructed by arguments field, in order of occurrance",
+                      "type":"string"
+                    },
+                    "placeholder": {
+                      "description": "A string that is embeded in header above acting as placeholders, for example, $VAR",
+                      "type":"string"
+                    },
+                    "arguments": {
+                      "description": "A list of arguments. The result of first argument would replace the first placeholder substituted in header, and the result of second argument would replace the second placeholder substituted, and so on. The number of arguments here should match the number of placeholder occurrences in header",
+                      "type":"array",
+                      "minItems":0,
+                      "items": {
+                        "type": "object",
+                        "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-end can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
+                        "properties":{
+                          "type-of-value": {
+                            "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.",
+                            "type":"string",
+                            "enum": ["JsonPointer", "Header", "RandomHex"]
+                          },
+                          "value-identifier":{
+                            "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is RandomHex",
+                            "type":"string"
+                          },
+                          "sub-string-start":{
+                            "description": "the start position from which the substring action would pick up the substring; default: 0, meaning the start of the string",
+                            "default": 0,
+                            "type": "integer"
+                          },
+                          "sub-string-end":{
+                            "description": "the end position upon which the substring action would end. The charactor at the end position is execluded. -1 means the position after the last character, thus start 0 end -1 means the whole original string",
+                            "default": -1,
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

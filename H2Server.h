@@ -39,7 +39,21 @@ std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
     o << "status_code:" << response.status_code << std::endl;
     for (auto& header : response.additonalHeaders)
     {
-        o << "header name: " << header.first << ", header value: " << header.second << std::endl;
+        std::cout<<"header:"<<std::endl;
+        for (auto& token : header.tokenizedHeader)
+        {
+            o << token << " ";
+        }
+        o << std::endl;
+
+        o << "header_arguments: ";
+        for (auto& arg : header.header_arguments)
+        {
+            o << "json_pointer: " << arg.json_pointer << std::endl;
+            o << "header name: " << arg.header_name << std::endl;
+            o << "substring_start: " << arg.substring_start << std::endl;
+            o << "substring_end: " << arg.substring_end << std::endl;
+        }
     }
     o << "payload: ";
     for (auto& token : response.tokenizedPayload)

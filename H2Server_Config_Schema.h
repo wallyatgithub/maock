@@ -50,7 +50,7 @@ public:
     }
 };
 
-class Schema_Payload_Argument
+class Schema_Argument
 {
 public:
     std::string type_of_value;
@@ -71,21 +71,36 @@ class Schema_Response_Payload
 public:
     std::string msg_payload;
     std::string placeholder;
-    std::vector<Schema_Payload_Argument> payload_argument;
+    std::vector<Schema_Argument> arguments;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("msg-payload", &this->msg_payload);
         h->add_property("placeholder", &this->placeholder);
-        h->add_property("arguments", &this->payload_argument);
+        h->add_property("arguments", &this->arguments);
     }
 };
+
+class Schema_Response_Header
+{
+public:
+    std::string header;
+    std::string placeholder;
+    std::vector<Schema_Argument> arguments;
+    void staticjson_init(staticjson::ObjectHandler* h)
+    {
+        h->add_property("header", &this->header);
+        h->add_property("placeholder", &this->placeholder);
+        h->add_property("arguments", &this->arguments);
+    }
+};
+
 
 class Schema_Response_To_Return
 {
 public:
     uint32_t status_code;
     Schema_Response_Payload payload;
-    std::vector<std::string> additonalHeaders;
+    std::vector<Schema_Response_Header> additonalHeaders;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("status-code", &this->status_code);
