@@ -5,8 +5,11 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+set(Boost_USE_STATIC_LIBS ON)
 
 find_package(OpenSSL 1.0.1)
+
+find_package(Boost 1.53.0 REQUIRED system thread)
 
 include(GNUInstallDirs)
 # Checks for header files.
@@ -35,8 +38,6 @@ list(APPEND APP_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 add_subdirectory(third-party)
 
-find_package(OpenSSL 1.0.1)
-
 add_subdirectory(includes)
 
 file(GLOB c_sources *.c)
@@ -52,19 +53,6 @@ include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/third-party/llhttp/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/third-party/StaticJSON/include"
   ${OPENSSL_INCLUDE_DIRS}
-)
-
-# XXX per-target?
-link_libraries(
-  nghttp2
-  ${JEMALLOC_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${LIBEV_LIBRARIES}
-  ${OPENSSL_LIBRARIES}
-  ${LIBCARES_LIBRARIES}
-  ${JANSSON_LIBRARIES}
-  ${ZLIB_LIBRARIES}
-  ${APP_LIBRARIES}
 )
 
 set(NGHTTP2_ASIO_SV_SOURCES
@@ -87,7 +75,7 @@ set(NGHTTP2_ASIO_SV_SOURCES
   asio_server_tls_context.cc
 )
 
-add_library(nghttp2_asio_sv SHARED
+add_library(nghttp2_asio_sv OBJECT
    ${NGHTTP2_ASIO_SV_SOURCES}
    $<TARGET_OBJECTS:llhttp>
    $<TARGET_OBJECTS:url-parser>
@@ -111,30 +99,23 @@ set_target_properties(nghttp2_asio_sv PROPERTIES
 
 link_libraries(
 nghttp2
-${LIBEVENT_OPENSSL_LIBRARIES}
 ${OPENSSL_LIBRARIES}
 ${APP_LIBRARIES}
 )
 
-add_executable(asio-sv asio-sv.cc $<TARGET_OBJECTS:llhttp>
+add_executable(maock asio-sv.cc $<TARGET_OBJECTS:llhttp>
+$<TARGET_OBJECTS:nghttp2_asio_sv>
 $<TARGET_OBJECTS:url-parser> $<TARGET_OBJECTS:staticjson>
 )
-target_include_directories(asio-sv PRIVATE
+target_include_directories(maock PRIVATE
 ${OPENSSL_INCLUDE_DIRS}
 ${Boost_INCLUDE_DIRS}
 )
-target_link_libraries(asio-sv
+target_link_libraries(maock
 nghttp2
-nghttp2_asio_sv
 ${OPENSSL_LIBRARIES}
 ${Boost_LIBRARIES}
 ${APP_LIBRARIES}
 )
 
-install(TARGETS nghttp2_asio_sv
-  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libnghttp2_asio_sv.pc"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
