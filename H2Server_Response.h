@@ -9,34 +9,11 @@
 #include <map>
 #include "H2Server_Config_Schema.h"
 #include "H2Server_Request_Message.h"
+#include <rapidjson/writer.h>
 
 using namespace rapidjson;
 
-std::string getJsonPointerValue(const rapidjson::Document& d, const std::string& json_pointer)
-{
-    rapidjson::Pointer ptr(json_pointer.c_str());
-    auto value = ptr.Get(d);
-    if (value)
-    {
-        if (value->IsString())
-        {
-            return value->GetString();
-        }
-        else if (value->IsBool())
-        {
-            return value->GetBool() ? "true" : "false";
-        }
-        else if (value->IsUint64())
-        {
-            return std::to_string(value->GetUint64());
-        }
-        else if (value->IsDouble())
-        {
-            return std::to_string(value->GetDouble());
-        }
-    }
-    return "";
-}
+const std::string extended_json_pointer_indicator = "/~#";
 
 std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
 {
@@ -59,6 +36,165 @@ std::vector<std::string> tokenize_string(const std::string& source, const std::s
         retVec.emplace_back(source);
     }
     return retVec;
+}
+
+template<typename RapidJsonType>
+const rapidjson::Value* getNthValue(const RapidJsonType& d, int64_t n)
+{
+    if (d.MemberCount() && n > 0)
+    {
+        int64_t index = 1;
+        for (rapidjson::Value::ConstMemberIterator itr = d.MemberBegin();
+            itr != d.MemberEnd();)
+        {
+            if (index == n)
+            {
+                return &(itr->value);
+            }
+            ++index;
+            ++itr;
+        }
+    }
+    else if (d.MemberCount() && n < 0)
+    {
+        if ((0 - n) == d.MemberCount())
+        {
+            return &(d.MemberBegin()->value);
+        }
+        else
+        {
+            int64_t index = -1;
+            rapidjson::Value::ConstMemberIterator itr = d.MemberEnd();
+            itr--;
+            while (itr != d.MemberBegin())
+            {
+                if (index == n)
+                {
+                    return &(itr->value);
+                }
+                itr--;
+                index--;
+            }
+        }
+
+    }
+    return nullptr;
+}
+
+std::vector<std::string> splitComplexJsonPointer(const std::string& json_pointer)
+{
+    std::vector<std::string> JsonPointers;
+    std::string extended_json_pointer_indicator = "/~#";
+    size_t start_pos = 0;
+    while (start_pos != std::string::npos)
+    {
+        size_t end_pos = json_pointer.find(extended_json_pointer_indicator, start_pos);
+        if (end_pos - start_pos)
+        {
+            JsonPointers.emplace_back(json_pointer.substr(start_pos, (end_pos - start_pos)));
+        }
+        if (end_pos != std::string::npos)
+        {
+            size_t nextJsonPtrPos = json_pointer.find("/", end_pos+1);
+            JsonPointers.emplace_back(json_pointer.substr(end_pos, (nextJsonPtrPos - end_pos)));
+            start_pos = nextJsonPtrPos;
+        }
+        else
+        {
+            break;
+        }
+    }
+    if (debug_mode)
+    {
+        std::cout<<"ComplexJsonPointer:"<<json_pointer<<std::endl;
+        for (auto& ptr: JsonPointers)
+        {
+            std::cout<<"Simple JsonPointer:"<<ptr<<std::endl;
+        }
+    }
+    return JsonPointers;
+}
+
+template<typename RapidJsonType>
+std::string convertRapidVJsonValueToStr(RapidJsonType* value)
+{
+    if (value)
+    {
+        if (value->IsString())
+        {
+            return value->GetString();
+        }
+        else if (value->IsBool())
+        {
+            return value->GetBool() ? "true" : "false";
+        }
+        else if (value->IsUint64())
+        {
+            return std::to_string(value->GetUint64());
+        }
+        else if (value->IsDouble())
+        {
+            return std::to_string(value->GetDouble());
+        }
+        else if (value->IsObject())
+        {
+            rapidjson::StringBuffer buffer;
+            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+            value->Accept(writer);
+            return std::string(buffer.GetString());
+        }
+    }
+    return "";
+}
+
+
+template<typename RapidJsonType>
+std::string getValueFromJsonPtr(const RapidJsonType& d, const std::string& json_pointer)
+{
+    std::vector<std::string> pointers = splitComplexJsonPointer(json_pointer);
+    const rapidjson::Value* value = &d;
+    for (size_t vectorIndex = 0; vectorIndex < pointers.size(); vectorIndex++)
+    {
+        if (pointers[vectorIndex].find(extended_json_pointer_indicator) != std::string::npos)
+        {
+            try
+            {
+                int64_t index = std::stoi(pointers[vectorIndex].substr(extended_json_pointer_indicator.size()));
+                value = getNthValue(*value, index);
+            }
+            catch (std::invalid_argument& e)
+            {
+                std::cerr<<"invalid_argument: "<<pointers[vectorIndex]<<std::endl;
+                exit(1);
+            }
+            catch (std::out_of_range& e)
+            {
+                std::cerr<<"out_of_range: "<<pointers[vectorIndex]<<std::endl;
+                exit(1);
+            }
+        }
+        else
+        {
+            rapidjson::Pointer ptr(pointers[vectorIndex].c_str());
+            value = ptr.Get(*value);
+        }
+        if (debug_mode)
+        {
+            std::cout<<"json pointer:"<<pointers[vectorIndex]<<", value:"<<convertRapidVJsonValueToStr(value)<<std::endl;
+        }
+
+        if (!value)
+        {
+            break;
+        }
+    }
+    return convertRapidVJsonValueToStr(value);
+}
+
+template<typename RapidJsonType>
+std::string getJsonPointerValue(const RapidJsonType& d, const std::string& json_pointer)
+{
+    return convertRapidVJsonValueToStr(getValueFromJsonPtr(d, json_pointer));
 }
 
 class Argument
@@ -97,7 +233,7 @@ public:
         std::string str;
         if (json_pointer.size())
         {
-            str = getJsonPointerValue(msg.json_payload, json_pointer);
+            str = getValueFromJsonPtr(msg.json_payload, json_pointer);
         }
         else if (header_name.size()&&msg.headers.count(header_name))
         {

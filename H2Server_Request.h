@@ -81,7 +81,7 @@ public:
 
     bool match(const rapidjson::Document& d) const
     {
-        return match(getJsonPointerValue(d, json_pointer), match_type, object);
+        return match(getValueFromJsonPtr(d, json_pointer), match_type, object);
     }
 
     bool match(H2Server_Request_Message& request) const
@@ -114,11 +114,19 @@ public:
     {
         if (!header_name.empty() && rhs.header_name.empty())
         {
-            return true;
+            return false;
         }
         else if (header_name.empty() && !rhs.header_name.empty())
         {
+            return true;
+        }
+        else if ((match_type == EQUALS_TO) && (rhs.match_type != EQUALS_TO))
+        {
             return false;
+        }
+        else if ((rhs.match_type == EQUALS_TO) && (match_type != EQUALS_TO))
+        {
+            return true;
         }
         else
         {
@@ -155,9 +163,9 @@ public:
     }
     bool match(H2Server_Request_Message& request) const
     {
-        for (auto& match_rule : match_rules)
+        for (auto match_rule = match_rules.rbegin(); match_rule != match_rules.rend(); match_rule++)
         {
-            if (!match_rule.match(request))
+            if (!match_rule->match(request))
             {
                 return false;
             }
@@ -176,9 +184,9 @@ public:
         }
         else
         {
-            auto match = match_rules.begin();
-            auto other_match = rhs.match_rules.begin();
-            while (match != match_rules.end() && other_match != rhs.match_rules.end())
+            auto match = match_rules.rbegin();
+            auto other_match = rhs.match_rules.rbegin();
+            while (match != match_rules.rend() && other_match != rhs.match_rules.rend())
             {
                 if (*match < *other_match)
                 {

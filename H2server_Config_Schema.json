@@ -33,7 +33,7 @@
         "type":"boolean"
     },
     "Service":{
-      "description":"service is a list of Request and Response pairs. Each response is associated with a Request, while the Request specifies the pattern the incoming request message should have, and if the incoming request matches the specified pattern, the corresponding Response is returned as the response of the incoming request message",
+      "description":"service is a list of Request and Response pairs. Each response is associated with a Request, while the Request specifies the pattern the incoming request message should have, and if the incoming request matches the specified pattern, the corresponding Response is returned as the response of the incoming request message; if the incoming request can match more than one patterns, the request pattern with more matching rules is chosen",
       "type":"array",
       "minItems":1,
       "items": {
@@ -41,7 +41,7 @@
         "description":"A pair of Request and Response",
         "properties":{
           "Request":{
-            "description": "Request specifies the desired pattern that a incoming request message should have, which includes a list of matches of received headers, and optionally a list of matches of Json payload; if a request message passes all the header matches as well as the payload matches, then the corresponding content specified by Response would be returned as the response",
+            "description": "Request specifies the desired pattern that a incoming request message should have, which includes a list of match rules of received headers, and optionally a list of match rules of Json payload; if a request message passes all the header match rules as well as the payload match rules, then the corresponding content specified by Response would be returned as the response",
             "type":"object",
             "properties":{
               "headers":{
