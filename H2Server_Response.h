@@ -260,7 +260,7 @@ public:
         }
 
 
-        if ((substring_start > 0) || (substring_length != -1))
+        if ((substring_start > 0 && substring_start <=str.size()) || (substring_length != -1))
         {
             return str.substr(substring_start, substring_length);
         }
