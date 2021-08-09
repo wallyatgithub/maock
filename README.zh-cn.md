@@ -77,6 +77,8 @@
   
   maock maock.json
   
+  
+  注：标准的也就是rfc6901定义的Json pointer具有局限性，无法跳过key直接指向map结构的value部分，所以maock中引入了对Json pointer的私有扩展，使得Json Pointer可以指向Json结构中的任意一处value
 
 # 如何从源代码构建maock：
 
