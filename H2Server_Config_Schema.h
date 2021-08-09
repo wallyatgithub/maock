@@ -56,13 +56,13 @@ public:
     std::string type_of_value;
     std::string value_identifier;
     int64_t substring_start;
-    int64_t substring_end;
+    int64_t substring_length;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("type-of-value", &this->type_of_value);
         h->add_property("value-identifier", &this->value_identifier);
         h->add_property("sub-string-start", &this->substring_start);
-        h->add_property("sub-string-end", &this->substring_end);
+        h->add_property("sub-string-length", &this->substring_length);
     }
 };
 

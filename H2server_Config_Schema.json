@@ -127,7 +127,7 @@
                     "minItems":0,
                     "items": {
                       "type": "object",
-                      "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-end can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
+                      "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
                       "properties":{
                         "type-of-value": {
                           "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.",
@@ -143,8 +143,8 @@
                           "default": 0,
                           "type": "integer"
                         },
-                        "sub-string-end":{
-                          "description": "the end position upon which the substring action would end. The charactor at the end position is execluded. -1 means the position after the last character, thus start 0 end -1 means the whole original string",
+                        "sub-string-length":{
+                          "description": "the length of the sub-string, -1 means till the end of the whole string; so sub-string-start = 0, sub-string-length = -1, means the whole string is taken, with no sub-strinng operation done",
                           "default": -1,
                           "type": "integer"
                         }
@@ -169,12 +169,12 @@
                       "type":"string"
                     },
                     "arguments": {
-                      "description": "A list of arguments. The result of first argument would replace the first placeholder substituted in header, and the result of second argument would replace the second placeholder substituted, and so on. The number of arguments here should match the number of placeholder occurrences in header",
+                      "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences in header",
                       "type":"array",
                       "minItems":0,
                       "items": {
                         "type": "object",
-                        "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-end can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
+                        "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
                         "properties":{
                           "type-of-value": {
                             "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.",
@@ -190,8 +190,8 @@
                             "default": 0,
                             "type": "integer"
                           },
-                          "sub-string-end":{
-                            "description": "the end position upon which the substring action would end. The charactor at the end position is execluded. -1 means the position after the last character, thus start 0 end -1 means the whole original string",
+                          "sub-string-length":{
+                            "description": "the length of the sub-string, -1 means till the end of the whole string; so sub-string-start = 0, sub-string-length = -1, means the whole string is taken, with no sub-strinng operation done",
                             "default": -1,
                             "type": "integer"
                           }

@@ -202,7 +202,7 @@ class Argument
 public:
     std::string json_pointer;
     int64_t substring_start;
-    int64_t substring_end;
+    int64_t substring_length;
     std::string header_name;
     bool random_hex;
     Argument(const Schema_Argument& payload_argument)
@@ -226,7 +226,7 @@ public:
             random_hex = true;
         }
         substring_start = payload_argument.substring_start;
-        substring_end = payload_argument.substring_end;
+        substring_length = payload_argument.substring_length;
     }
     std::string getValue(const H2Server_Request_Message& msg) const
     {
@@ -256,15 +256,13 @@ public:
             std::cout<<"random_hex: "<<random_hex<<std::endl;
             std::cout<<"target string: "<<str<<std::endl;
             std::cout<<"substring_start: "<<substring_start<<std::endl;
-            std::cout<<"substring_end: "<<substring_end<<std::endl;
+            std::cout<<"substring_length: "<<substring_length<<std::endl;
         }
 
 
-        if (((substring_start > 0) || (substring_end != -1))&&
-            (substring_start < static_cast<int64_t>(str.size()))&&
-            ((substring_end <= static_cast<int64_t>(str.size()) && substring_start < substring_end)||substring_end == -1))
+        if ((substring_start > 0) || (substring_length != -1))
         {
-            return str.substr(substring_start, substring_end);
+            return str.substr(substring_start, substring_length);
         }
         else
         {

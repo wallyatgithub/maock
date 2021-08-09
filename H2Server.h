@@ -52,7 +52,7 @@ std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
             o << "json_pointer: " << arg.json_pointer << std::endl;
             o << "header name: " << arg.header_name << std::endl;
             o << "substring_start: " << arg.substring_start << std::endl;
-            o << "substring_end: " << arg.substring_end << std::endl;
+            o << "substring_length: " << arg.substring_length << std::endl;
         }
     }
     o << "payload: ";
@@ -68,7 +68,7 @@ std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
         o << "json_pointer: " << arg.json_pointer << std::endl;
         o << "header name: " << arg.header_name << std::endl;
         o << "substring_start: " << arg.substring_start << std::endl;
-        o << "substring_end: " << arg.substring_end << std::endl;
+        o << "substring_length: " << arg.substring_length << std::endl;
     }
 
     return o;
