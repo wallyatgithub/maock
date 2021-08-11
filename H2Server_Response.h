@@ -15,6 +15,11 @@ using namespace rapidjson;
 
 const std::string extended_json_pointer_indicator = "/~#";
 
+const std::string extended_json_pointer_name_indicator = "#name";
+
+const std::string extended_json_pointer_value_indicator = "#value";
+
+
 std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
 {
     std::vector<std::string> retVec;
@@ -71,6 +76,49 @@ const rapidjson::Value* getNthValue(const RapidJsonType& d, int64_t n)
                 if (index == n)
                 {
                     return &(itr->value);
+                }
+                itr--;
+                index--;
+            }
+        }
+
+    }
+    return nullptr;
+}
+
+template<typename RapidJsonType>
+const rapidjson::Value* getNthName(const RapidJsonType& d, int64_t n)
+{
+    if (d.MemberCount() && n > 0)
+    {
+        int64_t index = 1;
+        for (rapidjson::Value::ConstMemberIterator itr = d.MemberBegin();
+            itr != d.MemberEnd();)
+        {
+            if (index == n)
+            {
+                return &(itr->name);
+            }
+            ++index;
+            ++itr;
+        }
+    }
+    else if (d.MemberCount() && n < 0)
+    {
+        if ((0 - n) == d.MemberCount())
+        {
+            return &(d.MemberBegin()->name);
+        }
+        else
+        {
+            int64_t index = -1;
+            rapidjson::Value::ConstMemberIterator itr = d.MemberEnd();
+            itr--;
+            while (itr != d.MemberBegin())
+            {
+                if (index == n)
+                {
+                    return &(itr->name);
                 }
                 itr--;
                 index--;
@@ -160,7 +208,22 @@ std::string getValueFromJsonPtr(const RapidJsonType& d, const std::string& json_
             try
             {
                 int64_t index = std::stoi(pointers[vectorIndex].substr(extended_json_pointer_indicator.size()));
-                value = getNthValue(*value, index);
+                std::string str = extended_json_pointer_indicator;
+                str.append(std::to_string(index));
+                std::string name_or_value = pointers[vectorIndex].substr(str.size());
+                if (name_or_value.compare(extended_json_pointer_name_indicator) == 0)
+                {
+                    value = getNthName(*value, index);
+                    break; // a name is always a string, no more pointer into this string any more
+                }
+                else if (name_or_value.compare(extended_json_pointer_value_indicator) == 0)
+                {
+                    value = getNthValue(*value, index);
+                }
+                else
+                {
+                    std::cerr<<"invalid json pointer: "<<pointers[vectorIndex]<<std::endl;
+                }
             }
             catch (std::invalid_argument& e)
             {
