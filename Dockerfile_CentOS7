@@ -13,5 +13,5 @@ RUN yum update -y && \
     yum remove git make unzip wget boost-devel boost-static cmake3 devtoolset-8-gcc devtoolset-8-gcc-c++ centos-release-scl -y && \
     cp maock-main/build/maock /usr/bin/ && \
     mkdir -p /usr/share/maock/ && \
-    cp maock-main/H2server_Config_Schema.json /usr/share/maock/ && \
+    cp maock-main/H2Server_Config_Schema.json /usr/share/maock/ && \
     rm -rf maock-main main.zip

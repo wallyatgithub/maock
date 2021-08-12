@@ -17,7 +17,7 @@
   
   首先，打开一个图形界面的Json编辑器，比如https://pmk65.github.io/jedemov2/dist/demo.html
   
-  然后把Maock的Json schema文件https://raw.githubusercontent.com/wallyatgithub/maock/main/H2server_Config_Schema.json
+  然后把Maock的Json schema文件https://raw.githubusercontent.com/wallyatgithub/maock/main/H2Server_Config_Schema.json
 
   粘贴进Json编辑器的“Schema”标签页的编辑框内，并点击“Generate Form”按钮，得到一个名为h2server_configuration的表单，
   

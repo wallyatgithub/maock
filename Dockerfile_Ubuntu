@@ -11,5 +11,5 @@ RUN apt-get update && \
     apt-get autoremove --yes && \
     cp maock-main/build/maock /usr/bin/ && \
     mkdir -p /usr/share/maock/ && \
-    cp maock-main/H2server_Config_Schema.json /usr/share/maock/ && \
+    cp maock-main/H2Server_Config_Schema.json /usr/share/maock/ && \
     rm -rf maock-main main.zip

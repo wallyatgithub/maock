@@ -14,7 +14,7 @@
  
   First, open a GUI Json editor, for example, https://pmk65.github.io/jedemov2/dist/demo.html
  
-  Then paste Maock Json schema file https://raw.githubusercontent.com/wallyatgithub/maock/main/H2server_Config_Schema.json
+  Then paste Maock Json schema file https://raw.githubusercontent.com/wallyatgithub/maock/main/H2Server_Config_Schema.json
   
   into the text box under "Schema" tab, and then click "Generate Form" button, which would produce a form named h2server_configuration
  
