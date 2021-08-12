@@ -41,9 +41,9 @@
   
   1. 应答的status-code，这个顾名思义，如201 Created， 200 OK，等等
   
-  2. 应答的消息体payload，其可以是一段Json数据，也可以是一段其它文本数据。如payload处的注解所言，此处填的payload可以带有变量占位符，每一个占位符对应后续一个argument
+  2. 应答的消息体payload，其可以是一段Json数据，也可以是一段其它文本数据。如msg-payload处的注解所言，此处填的payload可以带有变量占位符，每一个占位符对应后续一个argument
   
-     每一个argument负责生成一个字符串，用来替换payload中对应序号的占位符，即，第一个argument生成的字符串替换第一个占位符，第二个argument替换第二个占位符，以此类推
+     每一个argument负责生成一个字符串，用来替换msg-payload中对应序号的占位符，即，第一个argument生成的字符串替换第一个占位符，第二个argument替换第二个占位符，以此类推
      
      argument生成字符串的来源可以有几种：
      
