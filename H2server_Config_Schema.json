@@ -122,7 +122,7 @@
                     "type":"string"
                   },
                   "arguments": {
-                    "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences in header",
+                    "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences above",
                     "type":"array",
                     "minItems":0,
                     "items": {
@@ -169,7 +169,7 @@
                       "type":"string"
                     },
                     "arguments": {
-                      "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences in header",
+                      "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences above",
                       "type":"array",
                       "minItems":0,
                       "items": {
