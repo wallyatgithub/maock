@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
               nghttp2::asio_http2::header_value hdr_val;
               hdr_val.sensitive = false;
               hdr_val.value = std::to_string(payload.size());
-              headers.insert(std::make_pair("content-length", hdr_val));
+              headers.insert(std::make_pair("Content-Length", hdr_val));
           }
 
           res.write_head(matched_response->status_code, headers);
