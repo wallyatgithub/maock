@@ -44,7 +44,7 @@
  
   2. The outgoing message payload; it could be a piece of Json data, or some data in other format. 
   
-     As told by the description of the payload field, each payload can have placeholders for variables.
+     As told by the description of the msg-payload field, msg-payload can have placeholders for variables.
      
      Each placeholder is associated with an argument that follows in "Arguments" field.
     
