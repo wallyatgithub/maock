@@ -15,7 +15,7 @@
       "type":"integer"
     },
     "threads":{
-      "description":"Number of threads. Recommendation: thead number matches number of cores",
+      "description":"Number of concurrent worker threads. If 0 is given: thead number matches number of cores",
       "default": 1,
       "type":"integer"
     },

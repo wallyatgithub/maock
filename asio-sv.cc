@@ -37,6 +37,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <thread>
 
 #include <nghttp2/asio_http2_server.h>
 #include "H2Server_Config_Schema.h"
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
   try {
     // Check command line arguments.
     if (argc < 2) {
-      std::cerr<< "Usage: asio-sv config.json"<<std::endl;
+      std::cerr<< "Usage: "<<argv[0]<<" config.json"<<std::endl;
       return 1;
     }
 
@@ -77,7 +78,14 @@ int main(int argc, char *argv[]) {
     std::string addr = config_schema.address;
     std::string port = std::to_string(config_schema.port);
     std::size_t num_threads = config_schema.threads;
-
+    if (!num_threads)
+    {
+        num_threads = std::thread::hardware_concurrency();
+    }
+    if (!num_threads)
+    {
+        num_threads = 1;
+    }
     http2 server;
 
     server.num_threads(num_threads);
