@@ -6,6 +6,9 @@
 #include <vector>
 #include <list>
 #include <random>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
 #include <map>
 #include "H2Server_Config_Schema.h"
 #include "H2Server_Request_Message.h"
@@ -268,6 +271,7 @@ public:
     int64_t substring_length;
     std::string header_name;
     bool random_hex;
+    bool timestamp;
     Argument(const Schema_Argument& payload_argument)
     {
         if (payload_argument.type_of_value == "JsonPointer")
@@ -287,6 +291,13 @@ public:
             header_name = "";
             json_pointer = "";
             random_hex = true;
+        }
+        else if (payload_argument.type_of_value == "TimeStamp")
+        {
+            json_pointer = "";
+            random_hex = false;
+            header_name = "";
+            timestamp = true;
         }
         substring_start = payload_argument.substring_start;
         substring_length = payload_argument.substring_length;
@@ -310,6 +321,14 @@ public:
             std::stringstream stream;
             stream << std::hex << dis(gen);
             str = stream.str();
+        }
+        else if (timestamp)
+        {
+            std::time_t t = std::time(nullptr);
+            std::tm tm = *std::localtime(&t);
+            std::stringstream buffer;
+            buffer << std::put_time(&tm, "%a %d %b %Y %H:%M:%S");
+            str = buffer.str();
         }
 
         if (debug_mode)

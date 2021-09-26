@@ -130,9 +130,9 @@
                       "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
                       "properties":{
                         "type-of-value": {
-                          "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.",
+                          "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.; TimeStamp is to generate a timestamp in this format: %a %d %b %Y %H:%M:%S",
                           "type":"string",
-                          "enum": ["JsonPointer", "Header", "RandomHex"]
+                          "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
                         },
                         "value-identifier":{
                           "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is RandomHex",
