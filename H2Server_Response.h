@@ -327,7 +327,7 @@ public:
             std::time_t t = std::time(nullptr);
             std::tm tm = *std::localtime(&t);
             std::stringstream buffer;
-            buffer << std::put_time(&tm, "%a %d %b %Y %H:%M:%S");
+            buffer << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S %Z");
             str = buffer.str();
         }
 
