@@ -135,7 +135,7 @@
                           "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
                         },
                         "value-identifier":{
-                          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is RandomHex",
+                          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is neither JsonPointer nor Header",
                           "type":"string"
                         },
                         "sub-string-start":{
@@ -182,7 +182,7 @@
                             "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
                           },
                           "value-identifier":{
-                            "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is RandomHex",
+                            "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is neither JsonPointer nor Header",
                             "type":"string"
                           },
                           "sub-string-start":{
