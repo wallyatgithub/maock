@@ -325,7 +325,7 @@ public:
         else if (timestamp)
         {
             std::time_t t = std::time(nullptr);
-            std::tm tm = *std::localtime(&t);
+            std::tm tm = *std::gmtime(&t);
             std::stringstream buffer;
             buffer << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S %Z");
             str = buffer.str();
