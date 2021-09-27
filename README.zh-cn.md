@@ -15,11 +15,15 @@
   
   定制的基本过程：
   
-  首先，打开一个图形界面的Json编辑器，比如https://pmk65.github.io/jedemov2/dist/demo.html
+  首先，打开一个Json编辑器，比如 https://rjsf-team.github.io/react-jsonschema-form/
+  
+  然后选择在右上角的下拉框选择 "material-ui"，以获得更直观的层次感， 
   
   然后把Maock的Json schema文件https://raw.githubusercontent.com/wallyatgithub/maock/main/H2Server_Config_Schema.json
 
-  粘贴进Json编辑器的“Schema”标签页的编辑框内，并点击“Generate Form”按钮，得到一个名为h2server_configuration的表单，
+  粘贴进名为"JSONSchema"的文本框，右侧会生成一个名为h2server_configuration的表单，
+  
+  清空文本框 "UISchema" 和 "formData"中的内容，
   
   按照表单的每一项的提示，编辑表单。
   
@@ -70,16 +74,13 @@
   而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配。
   
   
-  
-  编辑表单结束之后，从output标签页的编辑框中复制出生成的Json文本，并存入一个文件，比如maock.json
+  编辑表单结束之后，从名为"formData"的文本框中复制出生成的Json配置数据，并存入一个文件，比如maock.json
   
   用这个Json文件作为输入，启动Maock:
   
     maock maock.json
  
-  除了前述的Json编辑器之外，下面的几个Json编辑器也是不错的选择，请随意挑选：
- 
-  https://rjsf-team.github.io/react-jsonschema-form/
+  除了前述的Json编辑器之外，下面的Json编辑器也是不错的选择，请随意挑选：
 
   http://brutusin.org/json-forms/ 
   

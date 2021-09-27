@@ -58,10 +58,7 @@
                       "type":"string"
                     },
                     "matchType":{
-                      "type":"string",
-                      "description": "Type of match action",
-                      "default": "StartsWith",
-                      "enum": ["EqualsTo", "StartsWith", "EndsWith", "Contains"]
+                      "$ref": "#/MatchType"
                     },
                     "input":{
                       "description": "Content used to run the matchType above against the received header value; i.e., received header value should either equal to or start with or end with or contain the content specified in this field",
@@ -84,9 +81,7 @@
                       "type":"string"
                     },
                     "matchType": {
-                      "type":"string",
-                      "description": "Type of match action",
-                      "enum": ["EqualsTo", "StartsWith", "EndsWith", "Contains"]
+                      "$ref": "#/MatchType"
                     },
                     "input": {
                       "description": "Content used to execute the matchType above against the value specified by the Json pointer above; the value specified by the Json pointer above should either equal to or start with or end with or contain the content specified in this field",
@@ -123,33 +118,7 @@
                   },
                   "arguments": {
                     "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences above",
-                    "type":"array",
-                    "minItems":0,
-                    "items": {
-                      "type": "object",
-                      "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
-                      "properties":{
-                        "type-of-value": {
-                          "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.; TimeStamp is to generate a timestamp in IMF-fixdate format, e.g.: Sun, 06 Nov 1994 08:49:37 GMT",
-                          "type":"string",
-                          "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
-                        },
-                        "value-identifier":{
-                          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is neither JsonPointer nor Header",
-                          "type":"string"
-                        },
-                        "sub-string-start":{
-                          "description": "the start position from which the substring action would pick up the substring; default: 0, meaning the start of the string",
-                          "default": 0,
-                          "type": "integer"
-                        },
-                        "sub-string-length":{
-                          "description": "the length of the sub-string, -1 means till the end of the whole string; so sub-string-start = 0, sub-string-length = -1, means the whole string is taken, with no sub-strinng operation done",
-                          "default": -1,
-                          "type": "integer"
-                        }
-                      }
-                    }
+                    "$ref": "#/Arguments"
                   }
                 }
               },
@@ -170,33 +139,7 @@
                     },
                     "arguments": {
                       "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences above",
-                      "type":"array",
-                      "minItems":0,
-                      "items": {
-                        "type": "object",
-                        "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
-                        "properties":{
-                          "type-of-value": {
-                            "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.; TimeStamp is to generate a timestamp in IMF-fixdate format, e.g.: Sun, 06 Nov 1994 08:49:37 GMT",
-                            "type":"string",
-                            "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
-                          },
-                          "value-identifier":{
-                            "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is neither JsonPointer nor Header",
-                            "type":"string"
-                          },
-                          "sub-string-start":{
-                            "description": "the start position from which the substring action would pick up the substring; default: 0, meaning the start of the string",
-                            "default": 0,
-                            "type": "integer"
-                          },
-                          "sub-string-length":{
-                            "description": "the length of the sub-string, -1 means till the end of the whole string; so sub-string-start = 0, sub-string-length = -1, means the whole string is taken, with no sub-strinng operation done",
-                            "default": -1,
-                            "type": "integer"
-                          }
-                        }
-                      }
+                      "$ref": "#/Arguments"
                     }
                   }
                 }
@@ -213,5 +156,44 @@
   },
   "required":[
     "Service"
-  ]
+  ],
+  "MatchType": {
+    "type":"string",
+    "description": "Type of match action",
+    "enum": ["EqualsTo", "StartsWith", "EndsWith", "Contains"]
+  },
+  "Arguments": {
+    "description": "A list of arguments. The result of first argument would replace the first placeholder occurrence in header, and the result of second argument would replace the second placeholder occurrence, and so on. The number of arguments here should match the number of placeholder occurrences above",
+    "type":"array",
+    "minItems":0,
+    "items": {
+      "type": "object",
+      "description": "Each argument produces a string value; the value can be identified by a Json pointer to the payload of the corresponding request, or value of a header in the corresponding request; the string value can also be a random single hex number, e.g., A, or B, or 9, etc., and a chain of random hex argument can be used to generate a UUID. An optional substring action specified by sub-string-start and sub-string-length can be applied to cut the value to get the desired portion, this is usually useful when the value is from Json pointer or header, it is obviously not making sense to cut the value which is already a single hex",
+      "properties":{
+        "type-of-value": {
+          "description": "how to produce the value: JsonPointer means to find the value from the received Json payload with the Json pointer specified by value-identifier field; Header means the value of the request header, with header name specified by value-identifier field; RandomHex means to generate a random hex number, like A, B, C, 9, etc.; TimeStamp is to generate a timestamp in IMF-fixdate format, e.g.: Sun, 06 Nov 1994 08:49:37 GMT",
+          "type":"string",
+          "enum": ["JsonPointer", "Header", "RandomHex", "TimeStamp"]
+        },
+        "value-identifier":{
+          "description": "Either a Json pointer, e.g., /name representing 'bill' in {'name': 'bill', 'location': office', 'ID', '123'}; or a header name which points to a header of the received request; this field is not used if type-of-value is neither JsonPointer nor Header",
+          "type":"string"
+        },
+        "sub-string-start":{
+          "description": "the start position from which the substring action would pick up the substring; default: 0, meaning the start of the string",
+          "default": 0,
+          "type": "integer"
+        },
+        "sub-string-length":{
+          "description": "the length of the sub-string, -1 means till the end of the whole string; so sub-string-start = 0, sub-string-length = -1, means the whole string is taken, with no sub-strinng operation done",
+          "default": -1,
+          "type": "integer"
+        }
+      },
+      "required":[
+        "type-of-value"
+      ]
+    }
+  }
 }
+
