@@ -81,6 +81,9 @@
  
     maock maock.json
   
+  Other online Json editors available:
+  https://rjsf-team.github.io/react-jsonschema-form/
+  http://brutusin.org/json-forms/ 
   
 
 # How to build Maock from the source：
