@@ -12,15 +12,11 @@
 
   Maock supports Json file to customize mock services.
  
-  First, open a GUI Json editor, for example, https://rjsf-team.github.io/react-jsonschema-form/
-  
-  Select "material-ui" in the up right dropbox for a better view of the layers of the configuration
+  First, open a GUI Json editor, for example, https://pmk65.github.io/jedemov2/dist/demo.html
  
   Then paste Maock Json schema file https://raw.githubusercontent.com/wallyatgithub/maock/main/H2Server_Config_Schema.json
   
-  into the text box named "JSONSchema", which would produce a form named h2server_configuration on the right side,
-  
-  Clear all text in textbox "UISchema" and "formData",
+  into the text box under "Schema" tab, and then click "Generate Form" button, which would produce a form named h2server_configuration
  
   Edit the form; check the text under each field for the description of each field.
   
@@ -79,13 +75,15 @@
   The incoming request matches both :header rule, and it also match the Json payload rule of the second "Request", then the second "Request" is chosen as matched, and "Response" associated with it, is used to produce the outgoing response messsage.
   
   
-  After finish editing the form, copy the data from the textbox named "formData", and save into a file, such as maock.json
+  After finish editing the form, copy the data of the left edit box under the "Output" tab, and save into a file, such as maock.json
   
   Then start Maock with maock.json as the input: 
  
     maock maock.json
   
-  You can choose other Json editors as well, such as:
+  Other online Json editors available:
+
+  https://rjsf-team.github.io/react-jsonschema-form/
 
   http://brutusin.org/json-forms/ 
   
