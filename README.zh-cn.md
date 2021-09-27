@@ -77,6 +77,12 @@
   
     maock maock.json
  
+  除了前述的Json编辑器之外，下面的几个Json编辑器也是不错的选择，请随意挑选：
+ 
+  https://rjsf-team.github.io/react-jsonschema-form/
+
+  http://brutusin.org/json-forms/ 
+  
 
 # 如何从源代码构建Maock：
 
