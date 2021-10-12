@@ -109,8 +109,8 @@ public:
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("status-code", &this->status_code);
-        h->add_property("payload", &this->payload);
-        h->add_property("additonalHeaders", &this->additonalHeaders);
+        h->add_property("payload", &this->payload, staticjson::Flags::Optional);
+        h->add_property("additonalHeaders", &this->additonalHeaders, staticjson::Flags::Optional);
     }
 };
 
