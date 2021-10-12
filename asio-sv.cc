@@ -71,8 +71,6 @@ int main(int argc, char *argv[]) {
         debug_mode = true;
     }
 
-    H2Server h2server(config_schema);
-
     boost::system::error_code ec;
 
     std::string addr = config_schema.address;
@@ -91,6 +89,8 @@ int main(int argc, char *argv[]) {
     server.num_threads(num_threads);
 
     server.handle("/", [&](const request &req, const response &res) {
+
+      static thread_local H2Server h2server(config_schema);
 
       H2Server_Request_Message msg(req);
       auto matched_response = h2server.get_response_to_return(msg);
