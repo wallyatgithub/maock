@@ -24,6 +24,12 @@ public:
         json_payload.Parse(req.unmutable_payload().c_str());
         std::string path_header_name = ":path";
         headers.insert(std::make_pair(path_header_name, req.uri().path));
+        std::string method_header_name = ":method";
+        headers.insert(std::make_pair(method_header_name, req.method()));
+        std::string scheme_header_name = ":scheme";
+        headers.insert(std::make_pair(scheme_header_name, req.uri().scheme));
+        std::string authority_header_name = ":authority";
+        headers.insert(std::make_pair(authority_header_name, req.uri().host));
         for (auto& hdr : req.header())
         {
             headers.insert(std::make_pair(hdr.first, hdr.second.value));
