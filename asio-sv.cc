@@ -140,10 +140,16 @@ int main(int argc, char *argv[]) {
         uint64_t totalMatchedResponseSent_till_lastInterval = 0;
         while (true)
         {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
             auto total_received = totalReqReceived->load();
             auto total_matched_sent = totalMatchedResponseSent->load();
             auto delta_received = total_received - totalReqReceived_till_lastInterval;
             auto delta_matched_sent = total_matched_sent - totalMatchedResponseSent_till_lastInterval;
+            if (!delta_received && !delta_matched_sent)
+            {
+                continue;
+            }
             auto now = std::chrono::system_clock::now();
             auto now_c = std::chrono::system_clock::to_time_t(now);
             std::cout<<std::endl;
@@ -156,7 +162,6 @@ int main(int argc, char *argv[]) {
             totalReqReceived_till_lastInterval = total_received;
             totalMatchedResponseSent_till_lastInterval = total_matched_sent;
             
-            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
     
