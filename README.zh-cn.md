@@ -69,11 +69,13 @@
   
      而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配。
   
-  4. 如有需要，Maock还可以加载一个Lua脚本，来对上述生成的header和payload做更进一步的定制。
+  4. 如有需要，Maock还可以加载一个Lua脚本，来对上述生成的header和payload做更进一步的定制。     
+    
+     不同的Service的"Response"可以有不同的customize_response函数，以实现最佳灵活的需求。
 
-     如果需要应用这个功能，则一段带有名为customize_response函数的Lua脚本需要提供，该函数读取四个输入参数：request_headers (table), request_payload, response_headers (table), response_payload
+     如果需要应用这个功能，则需要提供一段带有名为customize_response函数的Lua脚本，该函数读取四个输入参数：request_headers (table), request_payload, response_headers (table), response_payload
      
-     然后该函数可以根据特定的需要，对response_headers和response_payload做特定的修改，然后返回它们两个给Maock
+     然后该函数可以根据特定的需要，对response_headers和response_payload做特定的修改，然后返回它们两个给Maock。
      
      Maock会以更新过的内容作为应答响应返回。
      
@@ -85,8 +87,6 @@
         return response_headers_to_send, response_payload_to_send
     end
     
-     不同的Service的"Response"可以有不同的customize_response函数，以实现最佳灵活的需求。
-  
   
   编辑表单结束之后，从output标签页的编辑框中复制出生成的Json文本，并存入一个文件，比如maock.json
   
