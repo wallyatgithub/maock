@@ -68,7 +68,7 @@
      
   4. A Lua script to further customize the response headers and response payload generated above.
 
-     If this is desired, a piece of Lua script with a function named customize_response should be provided, which takes 4 arguments: request_headers (table), request_payload, response_headers (table), response_payload
+     If this is desired, a piece of Lua script with a function named customize_response should be provided to "luaScript" field of "Response", which takes 4 arguments: request_headers (table), request_payload, response_headers (table), response_payload
      
      The customize_response function can make necessary update to response_headers and response_payload, and then return them two.
      
