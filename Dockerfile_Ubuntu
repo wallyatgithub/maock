@@ -1,13 +1,13 @@
 FROM ubuntu:latest
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata && \
-    apt-get install --yes libnghttp2-dev openssl libssl-dev rapidjson-dev cmake build-essential gcc g++ unzip wget libboost-all-dev && \
+    apt-get install --yes libnghttp2-dev openssl libssl-dev rapidjson-dev cmake build-essential gcc g++ unzip wget libboost-all-dev libluajit-5.1-dev && \
     wget https://github.com/wallyatgithub/maock/archive/refs/heads/main.zip && \
     unzip main.zip && \
     mkdir maock-main/build && \
     cmake -S maock-main -B maock-main/build && \
     cmake --build maock-main/build && \
-    apt-get remove --yes cmake build-essential gcc g++ unzip libboost-all-dev wget && \
+    apt-get remove --yes cmake build-essential gcc g++ unzip libboost-all-dev libluajit-5.1-dev wget && \
     apt-get autoremove --yes && \
     cp maock-main/build/maock /usr/bin/ && \
     mkdir -p /usr/share/maock/ && \

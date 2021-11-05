@@ -9,10 +9,18 @@
 #include <iomanip>
 #include <ctime>
 #include <sstream>
+#include <fstream>
+#include <streambuf>
 #include <map>
+#include <memory>
 #include "H2Server_Config_Schema.h"
 #include "H2Server_Request_Message.h"
 #include <rapidjson/writer.h>
+extern "C" {
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+}
 
 using namespace rapidjson;
 
@@ -397,8 +405,9 @@ public:
     std::vector<H2Server_Response_Header> additonalHeaders;
     std::vector<std::string> tokenizedPayload;
     std::vector<Argument> payload_arguments;
-
-    H2Server_Response(const Schema_Response_To_Return& resp)
+    std::shared_ptr<lua_State> luaState;
+    std::string luaScript;
+    explicit H2Server_Response(const Schema_Response_To_Return& resp)
     {
         status_code = resp.status_code;
         tokenizedPayload = tokenize_string(resp.payload.msg_payload, resp.payload.placeholder);
@@ -416,6 +425,126 @@ public:
         {
             additonalHeaders.emplace_back(H2Server_Response_Header(header));
         }
+        luaScript = resp.luaScript;
+        if (luaScript.size())
+        {
+            std::ifstream f(resp.luaScript);
+            if (f.good())
+            {
+                std::string luaScriptStr((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+                luaScript = luaScriptStr;
+            }
+        }
+
+        if (luaScript.size())
+        {
+            luaState = std::shared_ptr<lua_State>(luaL_newstate(), &lua_close);
+            luaL_openlibs(luaState.get());
+            luaL_dostring(luaState.get(), resp.luaScript.c_str());
+        }
+    }
+
+    bool update_response_lua(std::multimap<std::string, std::string> req_headers,
+                                     const std::string& req_body,
+                                     std::map<std::string, std::string>& resp_headers,
+                                     std::string& response_body) const
+    {
+        bool retCode = true;
+        auto L = luaState.get();
+        if (!L)
+        {
+            return retCode;
+        }
+        lua_getglobal(L, "customize_response");
+        if (lua_isfunction(L, -1))
+        {
+            lua_createtable(L, 0, req_headers.size());
+
+            std::set<std::string> req_header_names;
+            for (auto& header : req_headers)
+            {
+                req_header_names.insert(header.first);
+            }
+            for (auto& header_name : req_header_names)
+            {
+                lua_pushlstring(L, header_name.c_str(), header_name.size());
+                std::string header_values;
+                auto range = req_headers.equal_range(header_name);
+                for (auto iter = range.first; iter != range.second; ++iter)
+                {
+                    if (header_values.size())
+                    {
+                        header_values.append(";");
+                    }
+                    header_values.append(iter->second);
+                }
+
+                lua_pushlstring(L, header_values.c_str(), header_values.size());
+                lua_rawset(L, -3);
+            }
+
+            lua_pushlstring(L, req_body.c_str(), req_body.size());
+
+            lua_createtable(L, 0, resp_headers.size());
+            for (auto& header : resp_headers)
+            {
+                lua_pushlstring(L, header.first.c_str(), header.first.size());
+                lua_pushlstring(L, header.second.c_str(), header.second.size());
+                lua_rawset(L, -3);
+            }
+
+            lua_pushlstring(L, response_body.c_str(), response_body.size());
+
+            lua_pcall(L, 4, 2, 0);
+            int top = lua_gettop(L);
+            for (int i = 0; i < top; i++)
+            {
+                switch (lua_type(L, -1))
+                {
+                    case LUA_TSTRING:
+                    {
+                        size_t len;
+                        const char* str = lua_tolstring(L, -1, &len);
+                        response_body.assign(str, len);
+                        break;
+                    }
+                    case LUA_TTABLE:
+                    {
+                        lua_pushnil(L);
+                        while (lua_next(L, -2) != 0)
+                        {
+                            size_t len;
+                            /* uses 'key' (at index -2) and 'value' (at index -1) */
+                            if ((LUA_TSTRING != lua_type(L, -2)) || (LUA_TSTRING != lua_type(L, -1)))
+                            {
+                                std::cerr << "invalid http headers returned from lua function customize_response" << std::endl;
+                            }
+                            const char* k = lua_tolstring(L, -2, &len);
+                            std::string key(k, len);
+                            const char* v = lua_tolstring(L, -1, &len);
+                            std::string value(v, len);
+                            resp_headers[key] = value;
+                            /* removes 'value'; keeps 'key' for next iteration */
+                            lua_pop(L, 1);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        std::cerr << "error occured in lua function customize_response" << std::endl;
+                        retCode = false;
+                        break;
+                    }
+                }
+                lua_pop(L, 1);
+            }
+        }
+        else
+        {
+            std::cerr << "lua script provisioned but required function customize_response not present" << std::endl;
+            retCode = false;
+        }
+        return retCode;
     }
 
     std::string produce_payload(const H2Server_Request_Message& msg) const

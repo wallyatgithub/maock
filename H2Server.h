@@ -92,7 +92,7 @@ public:
         }
 
         std::map<H2Server_Request, H2Server_Response> new_services;
-        for (auto each_service : services)
+        for (auto& each_service : services)
         {
             for (auto& match_rule : each_service.first.match_rules)
             {
@@ -108,7 +108,7 @@ public:
         for (auto& service_in_config_schema : config_schema.service)
         {
             H2Server_Service service(service_in_config_schema);
-            services.insert(std::make_pair(service.request, service.response));
+            services.insert(std::make_pair(std::move(service.request), std::move(service.response)));
         }
         build_match_rule_unique_id(services);
     }

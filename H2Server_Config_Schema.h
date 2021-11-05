@@ -106,11 +106,13 @@ public:
     uint32_t status_code;
     Schema_Response_Payload payload;
     std::vector<Schema_Response_Header> additonalHeaders;
+    std::string luaScript;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("status-code", &this->status_code);
         h->add_property("payload", &this->payload, staticjson::Flags::Optional);
         h->add_property("additonalHeaders", &this->additonalHeaders, staticjson::Flags::Optional);
+        h->add_property("luaScript", &this->luaScript, staticjson::Flags::Optional);
     }
 };
 

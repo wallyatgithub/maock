@@ -40,6 +40,7 @@
 #include <thread>
 #include <future>
 #include <memory>
+#include <tuple>
 
 #include <nghttp2/asio_http2_server.h>
 #include "H2Server_Config_Schema.h"
@@ -103,14 +104,16 @@ int main(int argc, char *argv[]) {
       if (matched_response)
       {
           header_map headers;
-          for (auto header: matched_response->produce_headers(msg))
+          auto response_headers = matched_response->produce_headers(msg);
+          auto payload = matched_response->produce_payload(msg);
+          matched_response->update_response_lua(msg.headers, req.unmutable_payload(), response_headers, payload);
+          for (auto header: response_headers)
           {
               nghttp2::asio_http2::header_value hdr_val;
               hdr_val.sensitive = false;
               hdr_val.value = header.second;
               headers.insert(std::make_pair(header.first, hdr_val));
           }
-          std::string payload = matched_response->produce_payload(msg);
           if (payload.size())
           {
               nghttp2::asio_http2::header_value hdr_val;

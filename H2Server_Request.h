@@ -95,10 +95,15 @@ public:
             bool matched = false;
             if (header_name.size())
             {
-                auto header_val = request.headers.find(header_name);
-                if (header_val != request.headers.end())
+                auto range = request.headers.equal_range(header_name);
+                for (auto iter = range.first; iter != range.second; ++iter)
                 {
-                    matched = match(header_val->second);
+                    auto header_val = iter->second;
+                    matched = match(header_val);
+                    if (matched)
+                    {
+                        break;
+                    }
                 }
             }
             else

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(h2loadrunner VERSION 0.1)
+project(maock VERSION 0.1)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -10,6 +10,8 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package(OpenSSL 1.0.1)
 
 find_package(Boost 1.53.0 REQUIRED system thread)
+
+find_package(LuaJIT)
 
 include(GNUInstallDirs)
 # Checks for header files.
@@ -52,7 +54,8 @@ include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
   "${CMAKE_CURRENT_SOURCE_DIR}/third-party/llhttp/include"
   "${CMAKE_CURRENT_SOURCE_DIR}/third-party/StaticJSON/include"
-  ${OPENSSL_INCLUDE_DIRS}
+  "${LUA_INCLUDE_DIR}"
+  "${OPENSSL_INCLUDE_DIR}"
 )
 
 set(NGHTTP2_ASIO_SV_SOURCES
@@ -101,6 +104,7 @@ link_libraries(
 nghttp2
 ${OPENSSL_LIBRARIES}
 ${APP_LIBRARIES}
+${LUA_LIBRARIES}
 )
 
 add_executable(maock asio-sv.cc $<TARGET_OBJECTS:llhttp>

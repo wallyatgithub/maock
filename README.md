@@ -66,6 +66,24 @@
      
      Like payload, a header value can also have placeholders for variable replacement by argument. It works exactly the same with that of payload.
      
+  4. A Lua script to further customize the response headers and response payload generated above.
+
+     If this is desired, a piece of Lua script with a function named customize_response should be provided, which takes 4 arguments: request_headers (table), request_payload, response_headers (table), response_payload
+     
+     The customize_response function can make necessary update to response_headers and response_payload, and then return them two.
+     
+     Maock will pick up the updated response_headers and response_payload, and send back in the response message.
+     
+     An example of the customize_response function:
+     
+        function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
+           response_headers_to_send["test"] = "test_value"
+           response_payload_to_send = "hello lua"
+           return response_headers_to_send, response_payload_to_send
+        end
+     
+     Different "Response" can have different customize_response for best flexibility.
+     
   It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits to find the corresponding "Response"
   
   Best fit, means, when there are more than one "Requst" can match the incoming request message, then the "Request" with more matching rules will be chosen as matched, and thus the corresponding "Response" is used to produce the outgoing response messsage.

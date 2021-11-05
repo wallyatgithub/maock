@@ -1,6 +1,6 @@
 FROM amd64/centos:7
 RUN yum update -y && \
-    yum install openssl-devel make unzip wget boost-devel boost-static -y && \
+    yum install openssl-devel make unzip wget boost-devel boost-static libluajit-5.1-dev -y && \
     yum install epel-release -y && \
     yum install libnghttp2-devel rapidjson-devel cmake3 -y && \
     yum install centos-release-scl -y && \
@@ -10,7 +10,7 @@ RUN yum update -y && \
     scl enable devtoolset-8 -- mkdir maock-main/build && \
     scl enable devtoolset-8 -- cmake3 -S maock-main -B maock-main/build && \
     scl enable devtoolset-8 -- cmake3 --build maock-main/build && \
-    yum remove git make unzip wget boost-devel boost-static cmake3 devtoolset-8-gcc devtoolset-8-gcc-c++ centos-release-scl -y && \
+    yum remove git make unzip wget boost-devel boost-static libluajit-5.1-dev cmake3 devtoolset-8-gcc devtoolset-8-gcc-c++ centos-release-scl -y && \
     cp maock-main/build/maock /usr/bin/ && \
     mkdir -p /usr/share/maock/ && \
     cp maock-main/H2Server_Config_Schema.json /usr/share/maock/ && \
