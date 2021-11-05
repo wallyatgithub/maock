@@ -74,6 +74,8 @@
      
      Maock will pick up the updated response_headers and response_payload, and send back in the response message.
      
+     Different "Response" can have different customize_response for best flexibility.
+    
      An example of the customize_response function:
      
     function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
@@ -81,8 +83,6 @@
         response_payload_to_send = "hello lua"
         return response_headers_to_send, response_payload_to_send
     end
-     
-     Different "Response" can have different customize_response for best flexibility.
      
   It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits to find the corresponding "Response"
   
