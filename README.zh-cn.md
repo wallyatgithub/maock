@@ -79,11 +79,11 @@
      
      下面是该函数的一个例子:
      
-        function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
-           response_headers_to_send["test"] = "test_value"
-           response_payload_to_send = "hello lua"
-           return response_headers_to_send, response_payload_to_send
-        end
+    function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
+        response_headers_to_send["test"] = "test_value"
+        response_payload_to_send = "hello lua"
+        return response_headers_to_send, response_payload_to_send
+    end
     
      不同的Service的"Response"可以有不同的customize_response函数，以实现最佳灵活的需求。
   
