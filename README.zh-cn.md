@@ -73,7 +73,7 @@
     
      不同的Service的"Response"可以有不同的customize_response函数，以实现最佳灵活的需求。
 
-     如果需要应用这个功能，则需要提供一段带有名为customize_response函数的Lua脚本，该函数读取四个输入参数：request_headers (table), request_payload, response_headers (table), response_payload
+     如果需要应用这个功能，则需要提供一段带有名为customize_response函数的Lua脚本给"Response"的"luaScript"配置部分，该函数读取四个输入参数：request_headers (table), request_payload, response_headers (table), response_payload
      
      然后该函数可以根据特定的需要，对response_headers和response_payload做特定的修改，然后返回它们两个给Maock。
      
