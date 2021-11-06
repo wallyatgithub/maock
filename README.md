@@ -36,7 +36,11 @@
   
   Some value (identified by a certain Json pointer) in the Json payload starts with / ends with / contains / equals to some certain keyword.
   
-  When the incoming request message passes all the matching rules that a "Request" defines, then the "Response" associated with the "Request", would be chosen to generate the response message.
+  When the incoming request message passes all the matching rules that a "Request" defines, the "Response" associated with the "Request", may be chosen to generate the response message.
+  
+  It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits to find the corresponding "Response" to generate the response message.
+  
+  Best fit, means, when there are more than one "Requst" can match the incoming request message, then the "Request" with more matching rules will be chosen as matched, and thus the corresponding "Response" is finally picked up to generate the outgoing response messsage.
   
   "Response" has a list of configuration fields available to customize the actual response:
 
@@ -84,15 +88,6 @@
         return response_headers_to_send, response_payload_to_send
     end
      
-  It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits to find the corresponding "Response"
-  
-  Best fit, means, when there are more than one "Requst" can match the incoming request message, then the "Request" with more matching rules will be chosen as matched, and thus the corresponding "Response" is used to produce the outgoing response messsage.
-  
-  While the second "Request" has a match rule to :path header, and another matching rule to Json message payload.
-  
-  The incoming request matches both :header rule, and it also match the Json payload rule of the second "Request", then the second "Request" is chosen as matched, and "Response" associated with it, is used to produce the outgoing response messsage.
-  
-  
   After finish editing the form, copy the data of the left edit box under the "Output" tab, and save into a file, such as maock.json
   
   Then start Maock with maock.json as the input: 
