@@ -37,6 +37,14 @@
   
   当进入的请求消息满足某一个Request定义的所有匹配规则的时候，则该Request所在的Service中定义的Response，会被用来生成对该请求消息的应答。
   
+  很自然的，定义若干组Service让Maock加载是允许的，Maock在运行的时候，对于一个进入的请求消息，会优先选择最优的匹配，来确定匹配到的Request，并用对应的Response来生成应答。
+  
+  所谓最优匹配，指的是，当有两个或者以上的Request可以匹配进入的请求消息的时候，那么，包含更多匹配规则的Request，会被选中，所以，最优匹配本质上就是一种最精确匹配。
+  
+  比如，一个Request只包含一个对:path header的匹配，并可以与进入的请求消息匹配成功，
+  
+  而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配，所以它对应的Response就会被用来生成最终的应答消息。
+     
   Response定义了几项基本内容：
   
   1. 应答的status-code，这个顾名思义，如201 Created， 200 OK，等等
@@ -61,14 +69,6 @@
      
      如payload一样，每header的值也可以带有占位符和变量，原理和上述payload中描述的完全一致
      
-     可以定义若干组Service，Maock在运行的时候，对于一个进入的请求消息，会优先选择最优的匹配，来确定匹配到的Request，并用对应的Response来生成应答。
-  
-     所谓最优匹配，指的是，当有两个或者以上的Request可以匹配进入的请求消息的时候，那么，包含更多匹配规则的Request，会被选中，所以，最优匹配本质上就是一种最精确匹配。
-  
-     比如，一个Request只包含一个对:path header的匹配，并可以与进入的请求消息匹配成功，
-  
-     而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配。
-  
   4. 如有需要，Maock还可以加载一个Lua脚本，来对上述生成的header和payload做更进一步的定制。     
     
      不同的Service的"Response"可以有不同的customize_response函数，以实现最佳灵活的需求。
