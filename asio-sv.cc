@@ -169,6 +169,11 @@ int main(int argc, char *argv[]) {
     });
     
     if (config_schema.cert_file.size() && config_schema.private_key_file.size()) {
+      if (config_schema.verbose)
+      {
+          std::cout<<"cert file: "<<config_schema.cert_file<<std::endl;
+          std::cout<<"private key file: "<<config_schema.private_key_file<<std::endl;
+      }
       boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
       tls.use_private_key_file(config_schema.private_key_file, boost::asio::ssl::context::pem);
       tls.use_certificate_chain_file(config_schema.cert_file);

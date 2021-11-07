@@ -65,7 +65,7 @@ configure_tls_context_easy(boost::system::error_code &ec,
   auto ctx = tls_context.native_handle();
 
   auto ssl_opts = (SSL_OP_ALL & ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) |
-                  SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION |
+                  SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
                   SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION |
                   SSL_OP_SINGLE_ECDH_USE | SSL_OP_NO_TICKET |
                   SSL_OP_CIPHER_SERVER_PREFERENCE;

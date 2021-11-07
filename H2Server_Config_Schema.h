@@ -145,7 +145,7 @@ public:
         h->add_property("port", &this->port);
         h->add_property("threads", &this->threads);
         h->add_property("private-key-file", &this->private_key_file, staticjson::Flags::Optional);
-        h->add_property("cert_file", &this->cert_file, staticjson::Flags::Optional);
+        h->add_property("cert-file", &this->cert_file, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
     }
 };
