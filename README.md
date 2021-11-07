@@ -105,7 +105,7 @@
 
 # How to build Maock from the source：
 
-  Maock has dependency on openssl, rapidJson, boost, nghttp2.
+  Maock has dependency on openssl, rapidJson, boost, nghttp2, libluajit-5.1-dev.
   
   Install the dependencies with package managers like yum or apt, and then use cmake to build Maock.
   
