@@ -27,6 +27,15 @@
       "description":"path to cert file",
       "type":"string"
     },
+    "caCert-file":{
+      "description":"path to CA cert file for client certificate verification, this is used when mTLS is enabled",
+      "type":"string"
+    },
+    "mTLS":{
+        "description": "true: enable mTLS, request and verify client certificate; false: do not request client certificate",
+        "default": false,
+        "type":"boolean"
+    },
     "verbose":{
         "description": "true: print debug trace; false: no debug print",
         "default": false,

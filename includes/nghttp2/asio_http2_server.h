@@ -229,7 +229,8 @@ private:
 // enables ECDHE ciphers.  NPN callback is also configured.
 boost::system::error_code
 configure_tls_context_easy(boost::system::error_code &ec,
-                           boost::asio::ssl::context &tls_context);
+                           boost::asio::ssl::context &tls_context,
+                           bool mTLS);
 
 // Returns request handler to do redirect to |uri| using
 // |status_code|.  The |uri| appears in "location" header field as is.

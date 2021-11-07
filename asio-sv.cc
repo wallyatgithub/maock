@@ -177,8 +177,24 @@ int main(int argc, char *argv[]) {
       boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
       tls.use_private_key_file(config_schema.private_key_file, boost::asio::ssl::context::pem);
       tls.use_certificate_chain_file(config_schema.cert_file);
+      if (config_schema.enable_mTLS)
+      {
+          if (config_schema.verbose)
+          {
+              std::cout<<"ca cert file: "<<config_schema.ca_cert_file<<std::endl;
+          }
+          if (config_schema.ca_cert_file.size())
+          {
+              tls.load_verify_file(config_schema.ca_cert_file);
+          }
+          else
+          {
+              std::cerr<<"mTLS enabled, but no CA cert file given, mTLS is thus disabled"<<std::endl;
+              config_schema.enable_mTLS = false;
+          }
+      }
 
-      configure_tls_context_easy(ec, tls);
+      configure_tls_context_easy(ec, tls, config_schema.enable_mTLS);
 
       if (server.listen_and_serve(ec, tls, addr, port)) {
         std::cerr << "error: " << ec.message() << std::endl;

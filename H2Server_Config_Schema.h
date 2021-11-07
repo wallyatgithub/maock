@@ -137,7 +137,14 @@ public:
     uint32_t threads;
     std::string private_key_file;
     std::string cert_file;
+    std::string ca_cert_file;
+    bool enable_mTLS;
     std::vector<Schema_Service> service;
+    explicit H2Server_Config_Schema()
+    {
+        enable_mTLS = false;
+        verbose = false;
+    }
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("verbose", &this->verbose, staticjson::Flags::Optional);
@@ -146,6 +153,8 @@ public:
         h->add_property("threads", &this->threads);
         h->add_property("private-key-file", &this->private_key_file, staticjson::Flags::Optional);
         h->add_property("cert-file", &this->cert_file, staticjson::Flags::Optional);
+        h->add_property("caCert-file", &this->ca_cert_file, staticjson::Flags::Optional);
+        h->add_property("mTLS", &this->enable_mTLS, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
     }
 };

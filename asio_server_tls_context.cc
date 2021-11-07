@@ -59,13 +59,14 @@ int alpn_select_proto_cb(SSL *ssl, const unsigned char **out,
 
 boost::system::error_code
 configure_tls_context_easy(boost::system::error_code &ec,
-                           boost::asio::ssl::context &tls_context) {
+                           boost::asio::ssl::context &tls_context,
+                           bool mTLS) {
   ec.clear();
 
   auto ctx = tls_context.native_handle();
 
   auto ssl_opts = (SSL_OP_ALL & ~SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) |
-                  SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 |
+                  SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION |
                   SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION |
                   SSL_OP_SINGLE_ECDH_USE | SSL_OP_NO_TICKET |
                   SSL_OP_CIPHER_SERVER_PREFERENCE;
@@ -73,6 +74,10 @@ configure_tls_context_easy(boost::system::error_code &ec,
   SSL_CTX_set_options(ctx, ssl_opts);
   SSL_CTX_set_mode(ctx, SSL_MODE_AUTO_RETRY);
   SSL_CTX_set_mode(ctx, SSL_MODE_RELEASE_BUFFERS);
+  if (mTLS)
+  {
+      SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT, NULL);
+  }
 
   SSL_CTX_set_cipher_list(ctx, tls::DEFAULT_CIPHER_LIST);
 
