@@ -89,17 +89,30 @@ int main(int argc, char *argv[]) {
     }
     http2 server;
 
-    auto totalReqReceived = std::make_shared<std::atomic<uint64_t>>(0);
-    auto totalMatchedResponseSent = std::make_shared<std::atomic<uint64_t>>(0);
+    auto threadIndex = std::make_shared<std::atomic<size_t>>(0);
+
+    std::vector<size_t> totalReqsReceived;
+    std::vector<size_t> totalMatchedResponsesSent;
+    totalReqsReceived.resize(num_threads);
+    totalMatchedResponsesSent.resize(num_threads);
+    for (size_t index = 0; index < num_threads; index ++)
+    {
+        totalReqsReceived[index] = 0;
+        totalMatchedResponsesSent[index] = 0;
+    }
 
     server.num_threads(num_threads);
 
-    server.handle("/", [&, totalReqReceived, totalMatchedResponseSent](const request &req, const response &res) {
+    server.handle("/", [&, threadIndex](const request &req, const response &res) {
 
       static thread_local H2Server h2server(config_schema);
+      static thread_local auto myId = ((*threadIndex)++);
+      static thread_local auto& s = std::cout<<"index:"<<myId<<std::endl;
+      static thread_local auto& totalReqReceived = totalReqsReceived[myId];
+      static thread_local auto& totalMatchedResponseSent = totalMatchedResponsesSent[myId];
 
       H2Server_Request_Message msg(req);
-      (*totalReqReceived)++;
+      totalReqReceived++;
       auto matched_response = h2server.get_response_to_return(msg);
       if (matched_response)
       {
@@ -124,7 +137,7 @@ int main(int argc, char *argv[]) {
 
           res.write_head(matched_response->status_code, headers);
           res.end(payload);
-          (*totalMatchedResponseSent)++;
+          totalMatchedResponseSent++;
       }
       else
       {
@@ -137,7 +150,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"addr: "<<addr<<", port: "<<port<<std::endl;
 
     std::future<void> fu_tps =
-        std::async(std::launch::async, [totalReqReceived, totalMatchedResponseSent]()
+        std::async(std::launch::async, [&totalReqsReceived, &totalMatchedResponsesSent]()
     {
         uint64_t totalReqReceived_till_lastInterval = 0;
         uint64_t totalMatchedResponseSent_till_lastInterval = 0;
@@ -145,8 +158,8 @@ int main(int argc, char *argv[]) {
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
-            auto total_received = totalReqReceived->load();
-            auto total_matched_sent = totalMatchedResponseSent->load();
+            auto total_received = std::accumulate(totalReqsReceived.begin(), totalReqsReceived.end(), 0);
+            auto total_matched_sent = std::accumulate(totalMatchedResponsesSent.begin(), totalMatchedResponsesSent.end(), 0);
             auto delta_received = total_received - totalReqReceived_till_lastInterval;
             auto delta_matched_sent = total_matched_sent - totalMatchedResponseSent_till_lastInterval;
             if (!delta_received && !delta_matched_sent)
