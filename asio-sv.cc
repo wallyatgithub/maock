@@ -159,8 +159,8 @@ int main(int argc, char *argv[]) {
             std::cout << std::put_time(std::localtime(&now_c), "%c")<<std::endl
                       << "total req recv: "<<total_received
                       << ", total response sent: " << total_matched_sent
-                      << ", incoming rps: " << delta_received
-                      << ", outgoing rps: " << delta_matched_sent
+                      << ", incoming requests per second: " << delta_received
+                      << ", matching responses per second: " << delta_matched_sent
                       << std::endl;
             totalReqReceived_till_lastInterval = total_received;
             totalMatchedResponseSent_till_lastInterval = total_matched_sent;
