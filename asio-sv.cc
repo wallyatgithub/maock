@@ -89,8 +89,7 @@ int main(int argc, char *argv[]) {
     }
     http2 server;
 
-    auto threadIndex = std::make_shared<std::atomic<size_t>>(0);
-
+    std::atomic<size_t> threadIndex(0);
     std::vector<size_t> totalReqsReceived;
     std::vector<size_t> totalMatchedResponsesSent;
     totalReqsReceived.resize(num_threads);
@@ -103,11 +102,10 @@ int main(int argc, char *argv[]) {
 
     server.num_threads(num_threads);
 
-    server.handle("/", [&, threadIndex](const request &req, const response &res) {
+    server.handle("/", [&](const request &req, const response &res) {
 
       static thread_local H2Server h2server(config_schema);
-      static thread_local auto myId = ((*threadIndex)++);
-      static thread_local auto& s = std::cout<<"index:"<<myId<<std::endl;
+      static thread_local auto myId = threadIndex++;
       static thread_local auto& totalReqReceived = totalReqsReceived[myId];
       static thread_local auto& totalMatchedResponseSent = totalMatchedResponsesSent[myId];
 
@@ -126,6 +124,10 @@ int main(int argc, char *argv[]) {
               hdr_val.sensitive = false;
               hdr_val.value = header.second;
               headers.insert(std::make_pair(header.first, hdr_val));
+              if (debug_mode)
+              {
+                  std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
+              }
           }
           if (payload.size())
           {
@@ -134,7 +136,15 @@ int main(int argc, char *argv[]) {
               hdr_val.value = std::to_string(payload.size());
               headers.insert(std::make_pair("Content-Length", hdr_val));
           }
-
+          if (debug_mode && payload.size())
+          {
+              std::cout<<"sending header "<<"Content-Length: "<<payload.size()<<std::endl;
+              std::cout<<"sending msg body "<<payload<<std::endl;
+          }
+          if (debug_mode)
+          {
+              std::cout<<"sending status code: "<<matched_response->status_code<<std::endl;
+          }
           res.write_head(matched_response->status_code, headers);
           res.end(payload);
           totalMatchedResponseSent++;
