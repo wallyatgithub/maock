@@ -64,7 +64,7 @@
      
      A sub string action can be done to the target value above, to get only a portion of the string. For example, to get the user Id from the :path header.
      
-     The other source to produce a string, is to produce a random hex. By chaining a list of these actions, Maock can produce a string similar to a UUID, like the subscription Id in the response message.
+     Other sources to produce a string might be added when needed. Please refer to the scheme to get a complete list.
      
   3. Headers of the outgoing response message.
   
