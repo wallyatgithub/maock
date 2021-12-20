@@ -1,7 +1,7 @@
 {
     "address": "0.0.0.0",
     "port": 8080,
-    "threads": 10,
+    "threads": 2,
     "verbose": false,
     "Service": [
         {
@@ -28,6 +28,18 @@
                         "arguments": [
                             {
                                 "type-of-value": "RandomHex",
+                                "sub-string-start": 0,
+                                "sub-string-length": -1
+                            }
+                        ]
+                    },
+                    {
+                        "header": "received-path:%s",
+                        "placeholder": "%s",
+                        "arguments": [
+                            {
+                                "type-of-value": "Header",
+                                "value-identifier": ":path",
                                 "sub-string-start": 0,
                                 "sub-string-length": -1
                             }
