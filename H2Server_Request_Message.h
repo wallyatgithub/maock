@@ -23,7 +23,12 @@ public:
     {
         json_payload.Parse(req.unmutable_payload().c_str());
         std::string path_header_name = ":path";
-        headers.insert(std::make_pair(path_header_name, req.uri().path));
+        std::string header_val = req.uri().path;
+        if (req.uri().raw_query.size())
+        {
+            header_val.append("?").append(req.uri().raw_query);
+        }
+        headers.insert(std::make_pair(path_header_name, header_val));
         std::string method_header_name = ":method";
         headers.insert(std::make_pair(method_header_name, req.method()));
         std::string scheme_header_name = ":scheme";

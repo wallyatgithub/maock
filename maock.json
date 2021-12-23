@@ -1,91 +1,144 @@
 {
-    "address": "0.0.0.0",
-    "port": 8080,
-    "threads": 2,
-    "verbose": false,
-    "Service": [
-        {
-            "Request": {
-                "headers": [
-                    {
-                        "header-name": ":path",
-                        "matchType": "StartsWith",
-                        "input": "/udm-ee/subscribe"
-                    },
-                    {
-                        "header-name": ":method",
-                        "matchType": "EqualsTo",
-                        "input": "POST"
-                    }
-                ]
-            },
-            "Response": {
-                "status-code": 201,
-                "additonalHeaders": [
-                    {
-                        "header": "location:/udm-ee/subscription/%s",
-                        "placeholder": "%s",
-                        "arguments": [
-                            {
-                                "type-of-value": "RandomHex",
-                                "sub-string-start": 0,
-                                "sub-string-length": -1
-                            }
-                        ]
-                    },
-                    {
-                        "header": "received-path:%s",
-                        "placeholder": "%s",
-                        "arguments": [
-                            {
-                                "type-of-value": "Header",
-                                "value-identifier": ":path",
-                                "sub-string-start": 0,
-                                "sub-string-length": -1
-                            }
-                        ]
-                    }
-                ]
-            }
+  "address": "0.0.0.0",
+  "port": 8080,
+  "threads": 2,
+  "verbose": false,
+  "Service": [
+    {
+      "Request": {
+        "headers": [
+          {
+            "header-name": ":path",
+            "matchType": "StartsWith",
+            "input": "/udm-ee/subscribe"
+          },
+          {
+            "header-name": ":method",
+            "matchType": "EqualsTo",
+            "input": "POST"
+          }
+        ]
+      },
+      "Response": {
+        "status-code": 201,
+        "additonalHeaders": [
+          {
+            "header": "location:/udm-ee/subscription/%s",
+            "placeholder": "%s",
+            "arguments": [
+              {
+                "type-of-value": "RandomHex",
+                "sub-string-start": 0,
+                "sub-string-length": -1
+              }
+            ]
+          },
+          {
+            "header": "received-path:%s",
+            "placeholder": "%s",
+            "arguments": [
+              {
+                "type-of-value": "Header",
+                "value-identifier": ":path",
+                "sub-string-start": 0,
+                "sub-string-length": -1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "Request": {
+        "headers": [
+          {
+            "header-name": ":path",
+            "matchType": "StartsWith",
+            "input": "/udm-ee/subscription/"
+          },
+          {
+            "header-name": ":method",
+            "matchType": "EqualsTo",
+            "input": "PATCH"
+          }
+        ]
+      },
+      "Response": {
+        "status-code": 204
+      }
+    },
+    {
+      "Request": {
+        "headers": [
+          {
+            "header-name": ":path",
+            "matchType": "StartsWith",
+            "input": "/udm-ee/subscription/"
+          },
+          {
+            "header-name": ":method",
+            "matchType": "EqualsTo",
+            "input": "DELETE"
+          }
+        ]
+      },
+      "Response": {
+        "status-code": 204
+      }
+    },
+    {
+      "Request": {
+        "headers": [
+          {
+            "header-name": ":path",
+            "matchType": "StartsWith",
+            "input": "/3gpp-amf-registration"
+          },
+          {
+            "header-name": ":method",
+            "matchType": "EqualsTo",
+            "input": "POST"
+          }
+        ],
+        "payload": []
+      },
+      "Response": {
+        "status-code": 204,
+        "payload": {
+          "msg-payload": "",
+          "placeholder": "",
+          "arguments": []
         },
-        {
-            "Request": {
-                "headers": [
-                    {
-                        "header-name": ":path",
-                        "matchType": "StartsWith",
-                        "input": "/udm-ee/subscription/"
-                    },
-                    {
-                        "header-name": ":method",
-                        "matchType": "EqualsTo",
-                        "input": "PATCH"
-                    }
-                ]
-            },
-            "Response": {
-                "status-code": 204
-            }
+        "additonalHeaders": [],
+        "luaScript": ""
+      }
+    },
+    {
+      "Request": {
+        "headers": [
+          {
+            "header-name": ":path",
+            "matchType": "StartsWith",
+            "input": "/3gpp-amf-registration"
+          },
+          {
+            "header-name": ":method",
+            "matchType": "EqualsTo",
+            "input": "PATCH"
+          }
+        ],
+        "payload": []
+      },
+      "Response": {
+        "status-code": 204,
+        "payload": {
+          "msg-payload": "",
+          "placeholder": "",
+          "arguments": []
         },
-        {
-            "Request": {
-                "headers": [
-                    {
-                        "header-name": ":path",
-                        "matchType": "StartsWith",
-                        "input": "/udm-ee/subscription/"
-                    },
-                    {
-                        "header-name": ":method",
-                        "matchType": "EqualsTo",
-                        "input": "DELETE"
-                    }
-                ]
-            },
-            "Response": {
-                "status-code": 204
-            }
-        }
-    ]
+        "additonalHeaders": [],
+        "luaScript": ""
+      }
+    }
+  ]
 }
-
