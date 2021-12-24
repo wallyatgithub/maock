@@ -74,13 +74,17 @@
      
   4. A Lua script to further customize the response headers and response payload generated above.
 
-     If this is desired, a piece of Lua script with a function named customize_response should be provided to "luaScript" field of "Response", which takes 4 arguments: request_headers (table), request_payload, response_headers (table), response_payload
+     If this is desired, a piece of Lua script, or a file containing the script, should be provided to "luaScript" field of "Response". 
+
+     The script should have a function named "customize_response", which takes 4 arguments: request_headers (table), request_payload, response_headers (table), response_payload
      
-     The customize_response function can make necessary update to response_headers and response_payload, and then return them two.
+     The script can define other lua functions, and function "customize_response" can call that. It can also "require" another lua module, the respective lua file required can be placed in the same directory of maock executable, or any other directory that is within LUA_PATH
+
+     The customize_response function can make whatever update to response_headers and response_payload, and then return them two.
      
      Maock will pick up the updated response_headers and response_payload, and send back in the response message.
      
-     Different "Response" can have different customize_response for best flexibility.
+     Different "Response" can have different customize_response scripts for best flexibility.
     
      An example of the customize_response function:
      
@@ -89,7 +93,7 @@
         response_payload_to_send = "hello lua"
         return response_headers_to_send, response_payload_to_send
     end
-     
+
   After finish editing the form, copy the data of the left edit box under the "Output" tab, and save into a file, such as maock.json
   
   Then start Maock with maock.json as the input: 
