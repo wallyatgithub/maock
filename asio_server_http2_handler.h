@@ -165,6 +165,9 @@ private:
   bool write_signaled_;
   time_t tstamp_cached_;
   std::string formatted_date_;
+  static std::atomic<uint64_t> handler_unique_id;
+  static std::map<uint64_t, http2_handler*> alive_handlers;
+  uint64_t this_handler_id;
 };
 
 } // namespace server

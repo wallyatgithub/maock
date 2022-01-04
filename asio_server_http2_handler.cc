@@ -244,6 +244,9 @@ int on_frame_not_send_callback(nghttp2_session *session,
 }
 } // namespace
 
+std::atomic<uint64_t> http2_handler::handler_unique_id(0);
+std::map<uint64_t, http2_handler*> http2_handler::alive_handlers;
+
 http2_handler::http2_handler(boost::asio::io_service &io_service,
                              boost::asio::ip::tcp::endpoint ep,
                              connection_write writefun, serve_mux &mux)
@@ -257,7 +260,11 @@ http2_handler::http2_handler(boost::asio::io_service &io_service,
       inside_callback_(false),
       write_signaled_(false),
       tstamp_cached_(time(nullptr)),
-      formatted_date_(util::http_date(tstamp_cached_)) {}
+      formatted_date_(util::http_date(tstamp_cached_)),
+      this_handler_id(handler_unique_id++)
+      {
+      alive_handlers[this_handler_id] = this;
+}
 
 http2_handler::~http2_handler() {
   for (auto &p : streams_) {
@@ -266,6 +273,7 @@ http2_handler::~http2_handler() {
   }
 
   nghttp2_session_del(session_);
+  alive_handlers.erase(this_handler_id);
 }
 
 const std::string &http2_handler::http_date() {
