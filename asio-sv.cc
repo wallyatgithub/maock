@@ -41,6 +41,9 @@
 #include <future>
 #include <memory>
 #include <tuple>
+#include <boost/asio/io_service.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <nghttp2/asio_http2_server.h>
 #include "H2Server_Config_Schema.h"
@@ -74,6 +77,14 @@ int main(int argc, char *argv[]) {
         debug_mode = true;
     }
 
+    boost::asio::io_service work_offload_io_service;
+    boost::thread_group work_offload_thread_pool;
+    boost::asio::io_service::work work(work_offload_io_service);
+    for (size_t i = 0; i < config_schema.service.size(); i++)
+    {
+        boost::bind(&boost::asio::io_service::run, &work_offload_io_service);
+    }
+
     boost::system::error_code ec;
 
     std::string addr = config_schema.address;
@@ -102,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     server.num_threads(num_threads);
 
-    server.handle("/", [&](const request &req, const response &res) {
+    server.handle("/", [&](const request &req, const response &res, uint64_t handler_id, int32_t stream_id) {
 
       static thread_local H2Server h2server(config_schema);
       static thread_local auto myId = threadIndex++;

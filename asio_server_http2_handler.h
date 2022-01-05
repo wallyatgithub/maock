@@ -93,6 +93,9 @@ public:
   const boost::asio::ip::tcp::endpoint &remote_endpoint();
 
   const std::string &http_date();
+  static http2_handler* find_http2_handler(uint64_t handler_id);
+
+  uint64_t get_handler_id();
 
   template <size_t N>
   int on_read(const boost::array<uint8_t, N> &buffer, std::size_t len) {

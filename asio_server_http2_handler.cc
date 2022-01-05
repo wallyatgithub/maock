@@ -262,7 +262,7 @@ http2_handler::http2_handler(boost::asio::io_service &io_service,
       tstamp_cached_(time(nullptr)),
       formatted_date_(util::http_date(tstamp_cached_)),
       this_handler_id(handler_unique_id++)
-      {
+{
       alive_handlers[this_handler_id] = this;
 }
 
@@ -274,6 +274,21 @@ http2_handler::~http2_handler() {
 
   nghttp2_session_del(session_);
   alive_handlers.erase(this_handler_id);
+}
+
+http2_handler* http2_handler::find_http2_handler(uint64_t handler_id)
+{
+    auto it = alive_handlers.find(handler_id);
+    if (it != alive_handlers.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}
+
+uint64_t http2_handler::get_handler_id()
+{
+    return this_handler_id;
 }
 
 const std::string &http2_handler::http_date() {
@@ -344,7 +359,7 @@ stream *http2_handler::find_stream(int32_t stream_id) {
 
 void http2_handler::call_on_request(stream &strm) {
   auto cb = mux_.handler(strm.request().impl());
-  cb(strm.request(), strm.response());
+  cb(strm.request(), strm.response(), strm.handler()->get_handler_id(), strm.get_stream_id());
 }
 
 bool http2_handler::should_stop() const {
