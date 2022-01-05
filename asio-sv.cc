@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     boost::asio::io_service::work work(work_offload_io_service);
     for (size_t i = 0; i < config_schema.service.size(); i++)
     {
-        boost::bind(&boost::asio::io_service::run, &work_offload_io_service);
+        work_offload_thread_pool.create_thread(boost::bind(&boost::asio::io_service::run, &work_offload_io_service));
     }
 
     boost::system::error_code ec;
