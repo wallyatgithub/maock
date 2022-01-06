@@ -46,6 +46,9 @@
 #include <boost/thread/thread.hpp>
 
 #include <nghttp2/asio_http2_server.h>
+#include "asio_server_http2_handler.h"
+#include "asio_server_stream.h"
+
 #include "H2Server_Config_Schema.h"
 #include "H2Server_Request.h"
 #include "H2Server.h"
@@ -113,52 +116,100 @@ int main(int argc, char *argv[]) {
 
     server.num_threads(num_threads);
 
-    server.handle("/", [&](const request &req, const response &res, uint64_t handler_id, int32_t stream_id) {
+    server.handle("/", [&work_offload_io_service, &config_schema, &threadIndex, &totalReqsReceived, &totalMatchedResponsesSent](const request &req, const response &res, uint64_t handler_id, int32_t stream_id) {
 
       static thread_local H2Server h2server(config_schema);
       static thread_local auto myId = threadIndex++;
-      static thread_local auto& totalReqReceived = totalReqsReceived[myId];
-      static thread_local auto& totalMatchedResponseSent = totalMatchedResponsesSent[myId];
+      static thread_local auto& reqReceived = totalReqsReceived[myId];
+      static thread_local auto& matchedResponsesSent = totalMatchedResponsesSent[myId];
+      auto init_strand = [&work_offload_io_service]()
+      {
+          std::map<const H2Server_Response*, boost::asio::io_service::strand> strands;
+          for (auto& service: h2server.services)
+          {
+              strands.insert(std::make_pair(&service.second, boost::asio::io_service::strand(work_offload_io_service)));
+          }
+          return strands;
+      };
+      static thread_local auto strands = init_strand();
 
       H2Server_Request_Message msg(req);
-      totalReqReceived++;
+      reqReceived++;
       auto matched_response = h2server.get_response_to_return(msg);
       if (matched_response)
       {
-          header_map headers;
           auto response_headers = matched_response->produce_headers(msg);
-          auto payload = matched_response->produce_payload(msg);
-          matched_response->update_response_lua(msg.headers, req.unmutable_payload(), response_headers, payload);
-          for (auto header: response_headers)
+          auto response_payload = matched_response->produce_payload(msg);
+
+          auto req_headers = msg.headers;
+          auto req_payload = req.unmutable_payload();
+          auto msg_update_routine = [matched_response,
+                                     req_headers,
+                                     req_payload,
+                                     response_headers,
+                                     response_payload,
+                                     handler_id,
+                                     stream_id]()
           {
-              nghttp2::asio_http2::header_value hdr_val;
-              hdr_val.sensitive = false;
-              hdr_val.value = header.second;
-              headers.insert(std::make_pair(header.first, hdr_val));
-              if (debug_mode)
+              auto resp_headers = response_headers;
+              auto resp_payload = response_payload;
+              matched_response->update_response_lua(req_headers, req_payload, resp_headers, resp_payload);
+              auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
+              if (!h2_handler)
               {
-                  std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
+                  return;
               }
-          }
-          if (payload.size())
-          {
-              nghttp2::asio_http2::header_value hdr_val;
-              hdr_val.sensitive = false;
-              hdr_val.value = std::to_string(payload.size());
-              headers.insert(std::make_pair("Content-Length", hdr_val));
-          }
-          if (debug_mode && payload.size())
-          {
-              std::cout<<"sending header "<<"Content-Length: "<<payload.size()<<std::endl;
-              std::cout<<"sending msg body "<<payload<<std::endl;
-          }
-          if (debug_mode)
-          {
-              std::cout<<"sending status code: "<<matched_response->status_code<<std::endl;
-          }
-          res.write_head(matched_response->status_code, headers);
-          res.end(payload);
-          totalMatchedResponseSent++;
+              auto send_response_routine = [matched_response, resp_headers, resp_payload, handler_id, stream_id]()
+              {
+                  auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
+                  if (!h2_handler)
+                  {
+                      return;
+                  }
+                  auto orig_stream = h2_handler->find_stream(stream_id);
+                  if (!orig_stream)
+                  {
+                      return;
+                  }
+                  header_map headers;
+                  for (auto header: resp_headers)
+                  {
+                      nghttp2::asio_http2::header_value hdr_val;
+                      hdr_val.sensitive = false;
+                      hdr_val.value = header.second;
+                      headers.insert(std::make_pair(header.first, hdr_val));
+                      if (debug_mode)
+                      {
+                          std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
+                      }
+                  }
+                  if (resp_payload.size())
+                  {
+                      nghttp2::asio_http2::header_value hdr_val;
+                      hdr_val.sensitive = false;
+                      hdr_val.value = std::to_string(resp_payload.size());
+                      headers.insert(std::make_pair("Content-Length", hdr_val));
+                  }
+                  if (debug_mode && resp_payload.size())
+                  {
+                      std::cout<<"sending header "<<"Content-Length: "<<resp_payload.size()<<std::endl;
+                      std::cout<<"sending msg body "<<resp_payload<<std::endl;
+                  }
+                  if (debug_mode)
+                  {
+                      std::cout<<"sending status code: "<<matched_response->status_code<<std::endl;
+                  }
+                  auto& res = orig_stream->response();
+                  res.write_head(matched_response->status_code, headers);
+                  res.end(resp_payload);
+                  matchedResponsesSent++;
+
+              };
+              h2_handler->io_service().post(send_response_routine);
+
+          };
+          auto it = strands.find(matched_response);
+          it->second.post(msg_update_routine);
       }
       else
       {
@@ -173,16 +224,16 @@ int main(int argc, char *argv[]) {
     std::future<void> fu_tps =
         std::async(std::launch::async, [&totalReqsReceived, &totalMatchedResponsesSent]()
     {
-        uint64_t totalReqReceived_till_lastInterval = 0;
-        uint64_t totalMatchedResponseSent_till_lastInterval = 0;
+        uint64_t reqReceived_till_lastInterval = 0;
+        uint64_t matchedResponsesSent_till_lastInterval = 0;
         while (true)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
             auto total_received = std::accumulate(totalReqsReceived.begin(), totalReqsReceived.end(), 0);
             auto total_matched_sent = std::accumulate(totalMatchedResponsesSent.begin(), totalMatchedResponsesSent.end(), 0);
-            auto delta_received = total_received - totalReqReceived_till_lastInterval;
-            auto delta_matched_sent = total_matched_sent - totalMatchedResponseSent_till_lastInterval;
+            auto delta_received = total_received - reqReceived_till_lastInterval;
+            auto delta_matched_sent = total_matched_sent - matchedResponsesSent_till_lastInterval;
             if (!delta_received && !delta_matched_sent)
             {
                 continue;
@@ -196,8 +247,8 @@ int main(int argc, char *argv[]) {
                       << ", incoming requests per second: " << delta_received
                       << ", matching responses per second: " << delta_matched_sent
                       << std::endl;
-            totalReqReceived_till_lastInterval = total_received;
-            totalMatchedResponseSent_till_lastInterval = total_matched_sent;
+            reqReceived_till_lastInterval = total_received;
+            matchedResponsesSent_till_lastInterval = total_matched_sent;
             
         }
     });
