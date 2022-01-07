@@ -212,7 +212,12 @@
               },
               "luaScript": {
                 "type":"string",
-                "description": "lua script (or a filename containing the actual script) with a function named customize_response, handling 4 arguments: request_headers (a table), request_payload, response_headers (a table), response_payload; returning request_headers_to_send and request_payload_to_send. maock passes the matched request headers and payload, and the response headers and payload generated above, to this lua function, which can update the response headers and response payload, and maock will use the updated headers and payload for the response. Example script: function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send) return response_headers_to_send, response_payload_to_send end"
+                "description": "lua script (or a filename containing the actual script) with a function named customize_response, handling 4 arguments: request_headers (a table), request_payload, response_headers (a table), response_payload; returning response_headers and response_payload. maock passes the matched request headers and payload, and the response headers and payload generated above, to this lua function, which can update the response headers and response payload, and maock will use the updated headers and payload for the response. Example script: function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send) return response_headers_to_send, response_payload_to_send end"
+              },
+              "lua-offload":{
+                  "description": "Some blocking operation, such as file read/write, database query, etc., may be invoked in the luaScript, in this way, the worker thread may be blocked from processing incoming request efficiently. This field provides an option to offload the lua script to run in seperate threads, to avoid blocking the worker thread due to blocking operation. true: offload lua script to run in seperate threads; false: run lua script inside worker thread. Suggestion: enable this only if there is blocking operation in luaScript, as extra data copy and exchange between threads would cause higher cpu usage",
+                  "default": false,
+                  "type":"boolean"
               }
             }
           }

@@ -42,7 +42,6 @@
 #include <memory>
 #include <tuple>
 #include <boost/asio/io_service.hpp>
-#include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 
 #include <nghttp2/asio_http2_server.h>
@@ -55,6 +54,82 @@
 
 using namespace nghttp2::asio_http2;
 using namespace nghttp2::asio_http2::server;
+
+inline void send_response(uint32_t status_code,
+                        std::map<std::string, std::string>& resp_headers,
+                        std::string& resp_payload,
+                        const uint64_t& handler_id,
+                        int32_t stream_id,
+                        uint64_t& matchedResponsesSent)
+{
+    auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
+    if (!h2_handler)
+    {
+        return;
+    }
+    auto orig_stream = h2_handler->find_stream(stream_id);
+    if (!orig_stream)
+    {
+        return;
+    }
+    header_map headers;
+    for (auto header: resp_headers)
+    {
+        nghttp2::asio_http2::header_value hdr_val;
+        hdr_val.sensitive = false;
+        hdr_val.value = header.second;
+        headers.insert(std::make_pair(header.first, hdr_val));
+        if (debug_mode)
+        {
+            std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
+        }
+    }
+    if (resp_payload.size())
+    {
+        nghttp2::asio_http2::header_value hdr_val;
+        hdr_val.sensitive = false;
+        hdr_val.value = std::to_string(resp_payload.size());
+        headers.insert(std::make_pair("Content-Length", hdr_val));
+    }
+    if (debug_mode && resp_payload.size())
+    {
+        std::cout<<"sending header "<<"Content-Length: "<<resp_payload.size()<<std::endl;
+        std::cout<<"sending msg body "<<resp_payload<<std::endl;
+    }
+    if (debug_mode)
+    {
+        std::cout<<"sending status code: "<<status_code<<std::endl;
+    }
+    auto& res = orig_stream->response();
+    res.write_head(status_code, headers);
+    res.end(resp_payload);
+    matchedResponsesSent++;
+};
+
+void update_response_with_lua(const H2Server_Response* matched_response,
+                                        std::multimap<std::string, std::string>& req_headers,
+                                        std::string& req_payload,
+                                        std::map<std::string, std::string>& resp_headers,
+                                        std::string& resp_payload,
+                                        uint64_t& handler_id,
+                                        int32_t stream_id,
+                                        uint64_t& matchedResponsesSent)
+{
+    matched_response->update_response_with_lua(req_headers, req_payload, resp_headers, resp_payload);
+    auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
+    if (!h2_handler)
+    {
+        return;
+    }
+    auto send_response_routine = std::bind(send_response,
+                                           matched_response->status_code,
+                                           resp_headers,
+                                           resp_payload,
+                                           handler_id,
+                                           stream_id,
+                                           std::ref(matchedResponsesSent));
+    h2_handler->io_service().post(send_response_routine);
+};
 
 int main(int argc, char *argv[]) {
   try {
@@ -118,105 +193,57 @@ int main(int argc, char *argv[]) {
 
     server.handle("/", [&work_offload_io_service, &config_schema, &threadIndex, &totalReqsReceived, &totalMatchedResponsesSent](const request &req, const response &res, uint64_t handler_id, int32_t stream_id) {
 
-      static thread_local H2Server h2server(config_schema);
-      static thread_local auto myId = threadIndex++;
-      static thread_local auto& reqReceived = totalReqsReceived[myId];
-      static thread_local auto& matchedResponsesSent = totalMatchedResponsesSent[myId];
-      auto init_strand = [&work_offload_io_service]()
-      {
+        static thread_local H2Server h2server(config_schema);
+        static thread_local auto myId = threadIndex++;
+        static thread_local auto& reqReceived = totalReqsReceived[myId];
+        static thread_local auto& matchedResponsesSent = totalMatchedResponsesSent[myId];
+        auto init_strand = [&work_offload_io_service]()
+        {
           std::map<const H2Server_Response*, boost::asio::io_service::strand> strands;
           for (auto& service: h2server.services)
           {
               strands.insert(std::make_pair(&service.second, boost::asio::io_service::strand(work_offload_io_service)));
           }
           return strands;
-      };
-      static thread_local auto strands = init_strand();
+        };
+        static thread_local auto strands = init_strand();
 
-      H2Server_Request_Message msg(req);
-      reqReceived++;
-      auto matched_response = h2server.get_response_to_return(msg);
-      if (matched_response)
-      {
+        H2Server_Request_Message msg(req);
+        reqReceived++;
+        auto matched_response = h2server.get_response_to_return(msg);
+        if (matched_response)
+        {
           auto response_headers = matched_response->produce_headers(msg);
           auto response_payload = matched_response->produce_payload(msg);
-
-          auto req_headers = msg.headers;
-          auto req_payload = req.unmutable_payload();
-          auto msg_update_routine = [matched_response,
-                                     req_headers,
-                                     req_payload,
-                                     response_headers,
-                                     response_payload,
-                                     handler_id,
-                                     stream_id]()
+          if (matched_response->luaState.get())
           {
-              auto resp_headers = response_headers;
-              auto resp_payload = response_payload;
-              matched_response->update_response_lua(req_headers, req_payload, resp_headers, resp_payload);
-              auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
-              if (!h2_handler)
+              if (matched_response->lua_offload)
               {
+                  auto msg_update_routine = std::bind(update_response_with_lua,
+                                                      matched_response,
+                                                      msg.headers,
+                                                      req.unmutable_payload(),
+                                                      response_headers,
+                                                      response_payload,
+                                                      handler_id,
+                                                      stream_id,
+                                                      std::ref(matchedResponsesSent));
+                  auto it = strands.find(matched_response);
+                  it->second.post(msg_update_routine);
                   return;
               }
-              auto send_response_routine = [matched_response, resp_headers, resp_payload, handler_id, stream_id]()
+              else
               {
-                  auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
-                  if (!h2_handler)
-                  {
-                      return;
-                  }
-                  auto orig_stream = h2_handler->find_stream(stream_id);
-                  if (!orig_stream)
-                  {
-                      return;
-                  }
-                  header_map headers;
-                  for (auto header: resp_headers)
-                  {
-                      nghttp2::asio_http2::header_value hdr_val;
-                      hdr_val.sensitive = false;
-                      hdr_val.value = header.second;
-                      headers.insert(std::make_pair(header.first, hdr_val));
-                      if (debug_mode)
-                      {
-                          std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
-                      }
-                  }
-                  if (resp_payload.size())
-                  {
-                      nghttp2::asio_http2::header_value hdr_val;
-                      hdr_val.sensitive = false;
-                      hdr_val.value = std::to_string(resp_payload.size());
-                      headers.insert(std::make_pair("Content-Length", hdr_val));
-                  }
-                  if (debug_mode && resp_payload.size())
-                  {
-                      std::cout<<"sending header "<<"Content-Length: "<<resp_payload.size()<<std::endl;
-                      std::cout<<"sending msg body "<<resp_payload<<std::endl;
-                  }
-                  if (debug_mode)
-                  {
-                      std::cout<<"sending status code: "<<matched_response->status_code<<std::endl;
-                  }
-                  auto& res = orig_stream->response();
-                  res.write_head(matched_response->status_code, headers);
-                  res.end(resp_payload);
-                  matchedResponsesSent++;
-
-              };
-              h2_handler->io_service().post(send_response_routine);
-
-          };
-          auto it = strands.find(matched_response);
-          it->second.post(msg_update_routine);
-      }
-      else
-      {
+                 matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
+              }
+          }
+          send_response(matched_response->status_code, response_headers, response_payload, handler_id, stream_id, matchedResponsesSent);
+        }
+        else
+        {
           res.write_head(404, {{"reason", {"no match found"}}});
           res.end("no matched entry found\n");
-      }
-      
+        }
     });
 
     std::cout<<"addr: "<<addr<<", port: "<<port<<std::endl;

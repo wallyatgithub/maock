@@ -110,7 +110,8 @@
           "arguments": []
         },
         "additonalHeaders": [],
-        "luaScript": ""
+        "luaScript": "function customize_response(response_header, response_payload, request_headers_to_send, request_payload_to_send)     request_headers_to_send[\"lua-version\"] = \"5.1\"     return request_headers_to_send, request_payload_to_send end",
+        "lua-offload": false
       }
     },
     {
@@ -137,7 +138,8 @@
           "arguments": []
         },
         "additonalHeaders": [],
-        "luaScript": ""
+        "luaScript": "function customize_response(response_header, response_payload, request_headers_to_send, request_payload_to_send)     request_headers_to_send[\"lua-version\"] = \"5.1\"     return request_headers_to_send, request_payload_to_send end",
+        "lua-offload": false 
       }
     }
   ]

@@ -407,6 +407,7 @@ public:
     std::vector<Argument> payload_arguments;
     std::shared_ptr<lua_State> luaState;
     std::string luaScript;
+    bool lua_offload;
     explicit H2Server_Response(const Schema_Response_To_Return& resp)
     {
         status_code = resp.status_code;
@@ -442,12 +443,13 @@ public:
             luaL_openlibs(luaState.get());
             luaL_dostring(luaState.get(), resp.luaScript.c_str());
         }
+        lua_offload = resp.lua_offload;
     }
 
-    bool update_response_lua(std::multimap<std::string, std::string> req_headers,
-                                     const std::string& req_body,
-                                     std::map<std::string, std::string>& resp_headers,
-                                     std::string& response_body) const
+    bool update_response_with_lua(std::multimap<std::string, std::string> req_headers,
+                                            const std::string& req_body,
+                                            std::map<std::string, std::string>& resp_headers,
+                                            std::string& response_body) const
     {
         bool retCode = true;
         auto L = luaState.get();
