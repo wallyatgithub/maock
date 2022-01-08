@@ -265,12 +265,6 @@ std::string getValueFromJsonPtr(const RapidJsonType& d, const std::string& json_
     return convertRapidVJsonValueToStr(value);
 }
 
-template<typename RapidJsonType>
-std::string getJsonPointerValue(const RapidJsonType& d, const std::string& json_pointer)
-{
-    return convertRapidVJsonValueToStr(getValueFromJsonPtr(d, json_pointer));
-}
-
 class Argument
 {
 public:

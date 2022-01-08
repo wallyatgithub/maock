@@ -21,6 +21,11 @@
       },
       "Response": {
         "status-code": 201,
+        "payload": {
+          "msg-payload": "{   \"schema\": \"http\",   \"host\": \"192.168.1.107\",   \"port\": 8080 }",
+          "placeholder": "",
+          "arguments": []
+        },
         "additonalHeaders": [
           {
             "header": "location:/udm-ee/subscription/%s",
