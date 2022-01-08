@@ -1,15 +1,20 @@
 #ifndef H2SERVER_REQUEST_MATCH_H
 #define H2SERVER_REQUEST_MATCH_H
 
-#include <rapidjson/pointer.h>
-#include <rapidjson/document.h>
+
 #include <vector>
 #include <list>
 #include <map>
 #include <set>
+#include <regex>
+
+#include <rapidjson/pointer.h>
+#include <rapidjson/document.h>
+
 #include "H2Server_Config_Schema.h"
 #include "H2Server_Response.h"
 #include "H2Server_Request_Message.h"
+
 
 using namespace rapidjson;
 
@@ -21,7 +26,8 @@ public:
         EQUALS_TO = 0,
         START_WITH,
         END_WITH,
-        CONTAINS
+        CONTAINS,
+        REGEX_MATCH
     };
 
     Match_Type match_type;
@@ -29,12 +35,17 @@ public:
     std::string json_pointer;
     std::string object;
     mutable uint64_t unique_id;
+    std::regex reg_exp;
     Match_Rule(const Schema_Header_Match& header_match)
     {
         object = header_match.input;
         header_name = header_match.header;
         json_pointer = "";
         match_type = string_to_match_type[header_match.matchType];
+        if (REGEX_MATCH == match_type)
+        {
+            reg_exp.assign(object, std::regex_constants::grep|std::regex_constants::optimize);
+        }
     }
     Match_Rule(const Schema_Payload_Match& payload_match)
     {
@@ -42,9 +53,13 @@ public:
         header_name = "";
         json_pointer = payload_match.jsonPointer;
         match_type = string_to_match_type[payload_match.matchType];
+        if (REGEX_MATCH == match_type)
+        {
+            reg_exp.assign(object, std::regex_constants::grep|std::regex_constants::optimize);
+        }
     }
 
-    std::map<std::string, Match_Type> string_to_match_type {{"EqualsTo", EQUALS_TO}, {"StartsWith", START_WITH}, {"EndsWith", END_WITH}, {"Contains", CONTAINS}};
+    std::map<std::string, Match_Type> string_to_match_type {{"EqualsTo", EQUALS_TO}, {"StartsWith", START_WITH}, {"EndsWith", END_WITH}, {"Contains", CONTAINS}, {"RegexMatch", REGEX_MATCH}};
 
     bool match(const std::string& subject, Match_Type verb, const std::string& object) const
     {
@@ -69,6 +84,10 @@ public:
             case CONTAINS:
             {
                 return (subject.find(object) != std::string::npos);
+            }
+            case REGEX_MATCH:
+            {
+                return std::regex_match(subject, reg_exp);
             }
         }
         return false;

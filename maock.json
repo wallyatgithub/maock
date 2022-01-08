@@ -9,8 +9,8 @@
         "headers": [
           {
             "header-name": ":path",
-            "matchType": "StartsWith",
-            "input": "/udm-ee/subscribe"
+            "matchType": "RegexMatch",
+            "input": "\\/udm-ee\\/subscribe\\/.*"
           },
           {
             "header-name": ":method",
