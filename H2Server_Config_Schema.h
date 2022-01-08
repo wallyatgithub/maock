@@ -57,6 +57,7 @@ public:
     std::string value_identifier;
     int64_t substring_start;
     int64_t substring_length;
+    std::string regex;
     explicit Schema_Argument()
     {
         substring_start = 0;
@@ -66,6 +67,7 @@ public:
     {
         h->add_property("type-of-value", &this->type_of_value);
         h->add_property("value-identifier", &this->value_identifier, staticjson::Flags::Optional);
+        h->add_property("regex", &this->regex, staticjson::Flags::Optional);
         h->add_property("sub-string-start", &this->substring_start, staticjson::Flags::Optional);
         h->add_property("sub-string-length", &this->substring_length, staticjson::Flags::Optional);
     }

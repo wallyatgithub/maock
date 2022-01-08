@@ -272,6 +272,9 @@ public:
     int64_t substring_start;
     int64_t substring_length;
     std::string header_name;
+    std::regex reg_exp;
+    std::string regex;
+    bool regex_present;
     bool random_hex;
     bool timestamp;
     Argument(const Schema_Argument& payload_argument)
@@ -303,6 +306,12 @@ public:
         }
         substring_start = payload_argument.substring_start;
         substring_length = payload_argument.substring_length;
+        if (payload_argument.regex.size())
+        {
+            reg_exp.assign(payload_argument.regex, std::regex_constants::grep|std::regex_constants::optimize);
+            regex = payload_argument.regex;
+            regex_present = true;
+        }
     }
     std::string getValue(const H2Server_Request_Message& msg) const
     {
@@ -339,10 +348,22 @@ public:
             std::cout<<"header_name: "<<header_name<<std::endl;
             std::cout<<"random_hex: "<<random_hex<<std::endl;
             std::cout<<"target string: "<<str<<std::endl;
+            std::cout<<"regex: "<<regex<<std::endl;
             std::cout<<"substring_start: "<<substring_start<<std::endl;
             std::cout<<"substring_length: "<<substring_length<<std::endl;
         }
-
+        if (regex_present)
+        {
+            std::smatch match_result;
+            if (std::regex_search(str, match_result, reg_exp))
+            {
+                str = match_result[0];
+            }
+            else
+            {
+                str.clear();
+            }
+        }
 
         if ((substring_start > 0 && substring_start <=str.size()) || (substring_length != -1))
         {

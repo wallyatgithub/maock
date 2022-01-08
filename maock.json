@@ -45,6 +45,7 @@
               {
                 "type-of-value": "Header",
                 "value-identifier": ":path",
+                "regex": "\\/udm-ee\\/subscribe\\/",
                 "sub-string-start": 0,
                 "sub-string-length": -1
               }
