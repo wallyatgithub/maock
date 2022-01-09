@@ -121,8 +121,14 @@ void update_response_with_lua(const H2Server_Response* matched_response,
     {
         return;
     }
+    auto status_code = matched_response->status_code;
+    if (resp_headers.count(status))
+    {
+        status_code = atoi(resp_headers[status].c_str());
+    }
+    resp_headers.erase(status);
     auto send_response_routine = std::bind(send_response,
-                                           matched_response->status_code,
+                                           status_code,
                                            resp_headers,
                                            resp_payload,
                                            handler_id,
@@ -215,6 +221,7 @@ int main(int argc, char *argv[]) {
         {
           auto response_headers = matched_response->produce_headers(msg);
           auto response_payload = matched_response->produce_payload(msg);
+          auto status_code = matched_response->status_code;
           if (matched_response->luaState.get())
           {
               if (matched_response->lua_offload)
@@ -235,9 +242,14 @@ int main(int argc, char *argv[]) {
               else
               {
                  matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
+                 if (response_headers.count(status))
+                 {
+                     status_code = atoi(response_headers[status].c_str());
+                 }
+                 response_headers.erase(status);
               }
           }
-          send_response(matched_response->status_code, response_headers, response_payload, handler_id, stream_id, matchedResponsesSent);
+          send_response(status_code, response_headers, response_payload, handler_id, stream_id, matchedResponsesSent);
         }
         else
         {

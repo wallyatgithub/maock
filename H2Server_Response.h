@@ -30,6 +30,8 @@ const std::string extended_json_pointer_name_indicator = "#name";
 
 const std::string extended_json_pointer_value_indicator = "#value";
 
+const std::string status = ":status";
+
 
 std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
 {
@@ -473,6 +475,7 @@ public:
             return retCode;
         }
         lua_getglobal(L, "customize_response");
+        std::string status_code_string = std::to_string(status_code);
         if (lua_isfunction(L, -1))
         {
             lua_createtable(L, 0, req_headers.size());
@@ -509,6 +512,9 @@ public:
                 lua_pushlstring(L, header.second.c_str(), header.second.size());
                 lua_rawset(L, -3);
             }
+            lua_pushlstring(L, status.c_str(), status.size());
+            lua_pushlstring(L, status_code_string.c_str(), status_code_string.size());
+            lua_rawset(L, -3);
 
             lua_pushlstring(L, response_body.c_str(), response_body.size());
 
