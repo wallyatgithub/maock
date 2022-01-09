@@ -113,6 +113,13 @@
             "description": "Response message to be returned in response to the request above",
             "type":"object",
             "properties":{
+              "throttle-ratio":{
+                "description": "maock can throttle the outgoing responses. If this field is given a number larger than 0, maock will drop that number of responses out of every 100 responses; e.g., if 2.5 is given, maock will sliently consume 2.5% requests matched, without making any response",
+                "default": 0,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
               "status-code": {
                 "description": "status-code",
                 "default": 200,

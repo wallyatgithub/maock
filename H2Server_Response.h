@@ -425,6 +425,7 @@ public:
     std::shared_ptr<lua_State> luaState;
     std::string luaScript;
     bool lua_offload;
+    double throttle_ratio;
     explicit H2Server_Response(const Schema_Response_To_Return& resp)
     {
         status_code = resp.status_code;
@@ -461,6 +462,7 @@ public:
             luaL_dostring(luaState.get(), resp.luaScript.c_str());
         }
         lua_offload = resp.lua_offload;
+        throttle_ratio = resp.throttle_ratio;
     }
 
     bool update_response_with_lua(std::multimap<std::string, std::string> req_headers,
@@ -621,6 +623,26 @@ public:
             headers.insert(header_with_value);
         }
         return headers;
+    }
+
+    bool is_response_throttled() const
+    {
+        if (throttle_ratio > 0.)
+        {
+            const auto scale = 10000;
+            const auto max_range = 100;
+            static thread_local uint64_t scaled_throttle_ratio = static_cast<uint64_t>(throttle_ratio * scale);
+            static thread_local std::random_device                  rand_dev;
+            static thread_local std::mt19937                        generator(rand_dev());
+            static thread_local std::uniform_int_distribution<uint64_t>  distr(0, max_range * scale - 1);
+
+            auto number = distr(generator);
+            if (number < scaled_throttle_ratio)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 };
 

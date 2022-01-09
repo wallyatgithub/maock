@@ -55,6 +55,15 @@
 using namespace nghttp2::asio_http2;
 using namespace nghttp2::asio_http2::server;
 
+void close_stream(uint64_t& handler_id, int32_t stream_id)
+{
+    auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
+    if (h2_handler)
+    {
+        h2_handler->close_stream(stream_id);
+    }
+}
+
 inline void send_response(uint32_t status_code,
                         std::map<std::string, std::string>& resp_headers,
                         std::string& resp_payload,
@@ -67,6 +76,12 @@ inline void send_response(uint32_t status_code,
     {
         return;
     }
+    if (!status_code)
+    {
+        h2_handler->close_stream(stream_id);;
+        return;
+    }
+
     auto orig_stream = h2_handler->find_stream(stream_id);
     if (!orig_stream)
     {
@@ -219,37 +234,42 @@ int main(int argc, char *argv[]) {
         auto matched_response = h2server.get_response_to_return(msg);
         if (matched_response)
         {
-          auto response_headers = matched_response->produce_headers(msg);
-          auto response_payload = matched_response->produce_payload(msg);
-          auto status_code = matched_response->status_code;
-          if (matched_response->luaState.get())
-          {
-              if (matched_response->lua_offload)
-              {
-                  auto msg_update_routine = std::bind(update_response_with_lua,
-                                                      matched_response,
-                                                      msg.headers,
-                                                      req.unmutable_payload(),
-                                                      response_headers,
-                                                      response_payload,
-                                                      handler_id,
-                                                      stream_id,
-                                                      std::ref(matchedResponsesSent));
-                  auto it = strands.find(matched_response);
-                  it->second.post(msg_update_routine);
-                  return;
-              }
-              else
-              {
-                 matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
-                 if (response_headers.count(status))
-                 {
-                     status_code = atoi(response_headers[status].c_str());
-                 }
-                 response_headers.erase(status);
-              }
-          }
-          send_response(status_code, response_headers, response_payload, handler_id, stream_id, matchedResponsesSent);
+            if (matched_response->is_response_throttled())
+            {
+                close_stream(handler_id, stream_id);
+                return;
+            }
+            auto response_headers = matched_response->produce_headers(msg);
+            auto response_payload = matched_response->produce_payload(msg);
+            auto status_code = matched_response->status_code;
+            if (matched_response->luaState.get())
+            {
+                if (matched_response->lua_offload)
+                {
+                    auto msg_update_routine = std::bind(update_response_with_lua,
+                                                        matched_response,
+                                                        msg.headers,
+                                                        req.unmutable_payload(),
+                                                        response_headers,
+                                                        response_payload,
+                                                        handler_id,
+                                                        stream_id,
+                                                        std::ref(matchedResponsesSent));
+                    auto it = strands.find(matched_response);
+                    it->second.post(msg_update_routine);
+                    return;
+                }
+                else
+                {
+                   matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
+                   if (response_headers.count(status))
+                   {
+                       status_code = atoi(response_headers[status].c_str());
+                   }
+                   response_headers.erase(status);
+                }
+            }
+            send_response(status_code, response_headers, response_payload, handler_id, stream_id, matchedResponsesSent);
         }
         else
         {

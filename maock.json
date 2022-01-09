@@ -90,6 +90,7 @@
         ]
       },
       "Response": {
+        "throttle-ratio": 20,
         "status-code": 204
       }
     },
