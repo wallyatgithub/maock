@@ -32,6 +32,7 @@ const std::string extended_json_pointer_value_indicator = "#value";
 
 const std::string status = ":status";
 
+const std::string customize_response = "customize_response";
 
 std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
 {
@@ -460,6 +461,14 @@ public:
             luaState = std::shared_ptr<lua_State>(luaL_newstate(), &lua_close);
             luaL_openlibs(luaState.get());
             luaL_dostring(luaState.get(), resp.luaScript.c_str());
+            lua_getglobal(luaState.get(), customize_response.c_str());
+            if (!lua_isfunction(luaState.get(), -1))
+            {
+                lua_settop(luaState.get(), 0);
+                std::cerr<<"required function not present or ill-formed: "<<customize_response<<std::endl;
+                luaState.reset();
+                exit(1);
+            }
         }
         lua_offload = resp.lua_offload;
         throttle_ratio = resp.throttle_ratio;
@@ -476,8 +485,7 @@ public:
         {
             return retCode;
         }
-        lua_getglobal(L, "customize_response");
-        std::string status_code_string = std::to_string(status_code);
+        lua_getglobal(L, customize_response.c_str());
         if (lua_isfunction(L, -1))
         {
             lua_createtable(L, 0, req_headers.size());
@@ -514,6 +522,8 @@ public:
                 lua_pushlstring(L, header.second.c_str(), header.second.size());
                 lua_rawset(L, -3);
             }
+            
+            std::string status_code_string = std::to_string(status_code);
             lua_pushlstring(L, status.c_str(), status.size());
             lua_pushlstring(L, status_code_string.c_str(), status_code_string.size());
             lua_rawset(L, -3);
@@ -566,7 +576,7 @@ public:
         }
         else
         {
-            std::cerr << "lua script provisioned but required function customize_response not present" << std::endl;
+            lua_settop(L, 0);
             retCode = false;
         }
         return retCode;

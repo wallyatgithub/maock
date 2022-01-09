@@ -171,6 +171,9 @@ int main(int argc, char *argv[]) {
         std::cout << "error reading config file:" << result.description() << std::endl;
         exit(1);
     }
+
+    H2Server h2server(config_schema); // sanity check to fail early
+
     if (config_schema.verbose)
     {
         debug_mode = true;
