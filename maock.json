@@ -2,10 +2,15 @@
   "address": "0.0.0.0",
   "port": 8080,
   "threads": 2,
+  "private-key-file": "",
+  "cert-file": "",
+  "caCert-file": "",
+  "mTLS": false,
   "verbose": false,
   "Service": [
     {
       "Request": {
+        "name": "subscribe",
         "headers": [
           {
             "header-name": ":path",
@@ -17,46 +22,69 @@
             "matchType": "EqualsTo",
             "input": "POST"
           }
-        ]
+        ],
+        "payload": []
       },
-      "Response": {
-        "status-code": 201,
-        "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"201\"     return response_headers_to_send, response_payload_to_send end",
-        "payload": {
-          "msg-payload": "{   \"schema\": \"http\",   \"host\": \"192.168.1.107\",   \"port\": 8080 }",
-          "placeholder": "",
-          "arguments": []
-        },
-        "additonalHeaders": [
-          {
-            "header": "location:/udm-ee/subscription/%s",
-            "placeholder": "%s",
-            "arguments": [
-              {
-                "type-of-value": "RandomHex",
-                "sub-string-start": 0,
-                "sub-string-length": -1
-              }
-            ]
+      "Responses": [
+        {
+          "name": "resp-201",
+          "weight": 99,
+          "throttle-ratio": 0,
+          "status-code": 201,
+          "payload": {
+            "msg-payload": "{   \"schema\": \"http\",   \"host\": \"192.168.1.107\",   \"port\": 8080 }",
+            "placeholder": "",
+            "arguments": []
           },
-          {
-            "header": "received-path:%s",
-            "placeholder": "%s",
-            "arguments": [
-              {
-                "type-of-value": "Header",
-                "value-identifier": ":path",
-                "regex": "\\/udm-ee\\/subscribe\\/",
-                "sub-string-start": 0,
-                "sub-string-length": -1
-              }
-            ]
-          }
-        ]
-      }
+          "additonalHeaders": [
+            {
+              "header": "location:/udm-ee/subscription/%s",
+              "placeholder": "%s",
+              "arguments": [
+                {
+                  "type-of-value": "RandomHex",
+                  "value-identifier": "",
+                  "regex": "",
+                  "sub-string-start": 0,
+                  "sub-string-length": -1
+                }
+              ]
+            },
+            {
+              "header": "received-path:%s",
+              "placeholder": "%s",
+              "arguments": [
+                {
+                  "type-of-value": "Header",
+                  "value-identifier": ":path",
+                  "regex": "\\/udm-ee\\/subscribe\\/",
+                  "sub-string-start": 0,
+                  "sub-string-length": -1
+                }
+              ]
+            }
+          ],
+          "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"201\"     return response_headers_to_send, response_payload_to_send end"
+        },
+        {
+          "name": "503",
+          "weight": 100,
+          "throttle-ratio": 0,
+          "status-code": 503,
+          "payload": {
+            "msg-payload": "",
+            "placeholder": "",
+            "arguments": []
+          },
+          "additonalHeaders": [],
+          "luaScript": "",
+          "lua-offload": false
+        }
+      ]
     },
     {
       "Request": {
+        "name": "subs-update",
         "headers": [
           {
             "header-name": ":path",
@@ -68,14 +96,29 @@
             "matchType": "EqualsTo",
             "input": "PATCH"
           }
-        ]
+        ],
+        "payload": []
       },
-      "Response": {
-        "status-code": 204
-      }
+      "Responses": [
+        {
+          "name": "resp-204",
+          "weight": 100,
+          "throttle-ratio": 0,
+          "status-code": 204,
+          "payload": {
+            "msg-payload": "",
+            "placeholder": "",
+            "arguments": []
+          },
+          "additonalHeaders": [],
+          "luaScript": "",
+          "lua-offload": false
+        }
+      ]
     },
     {
       "Request": {
+        "name": "subs-del",
         "headers": [
           {
             "header-name": ":path",
@@ -87,15 +130,29 @@
             "matchType": "EqualsTo",
             "input": "DELETE"
           }
-        ]
+        ],
+        "payload": []
       },
-      "Response": {
-        "throttle-ratio": 20,
-        "status-code": 204
-      }
+      "Responses": [
+        {
+          "name": "del-204",
+          "weight": 100,
+          "throttle-ratio": 0,
+          "status-code": 204,
+          "payload": {
+            "msg-payload": "",
+            "placeholder": "",
+            "arguments": []
+          },
+          "additonalHeaders": [],
+          "luaScript": "",
+          "lua-offload": false
+        }
+      ]
     },
     {
       "Request": {
+        "name": "amf-reg",
         "headers": [
           {
             "header-name": ":path",
@@ -110,20 +167,26 @@
         ],
         "payload": []
       },
-      "Response": {
-        "status-code": 204,
-        "payload": {
-          "msg-payload": "",
-          "placeholder": "",
-          "arguments": []
-        },
-        "additonalHeaders": [],
-        "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"204\"     return response_headers_to_send, response_payload_to_send end",
-        "lua-offload": false
-      }
+      "Responses": [
+        {
+          "name": "reg-204",
+          "weight": 100,
+          "throttle-ratio": 0,
+          "status-code": 204,
+          "payload": {
+            "msg-payload": "",
+            "placeholder": "",
+            "arguments": []
+          },
+          "additonalHeaders": [],
+          "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"204\"     return response_headers_to_send, response_payload_to_send end",
+          "lua-offload": false
+        }
+      ]
     },
     {
       "Request": {
+        "name": "amf-dereg",
         "headers": [
           {
             "header-name": ":path",
@@ -138,17 +201,22 @@
         ],
         "payload": []
       },
-      "Response": {
-        "status-code": 204,
-        "payload": {
-          "msg-payload": "",
-          "placeholder": "",
-          "arguments": []
-        },
-        "additonalHeaders": [],
-        "luaScript": "function customize_response(response_header, response_payload, request_headers_to_send, request_payload_to_send)     request_headers_to_send[\"lua-version\"] = \"5.1\"     return request_headers_to_send, request_payload_to_send end",
-        "lua-offload": false 
-      }
+      "Responses": [
+        {
+          "name": "dereg-204",
+          "weight": 100,
+          "throttle-ratio": 0,
+          "status-code": 204,
+          "payload": {
+            "msg-payload": "",
+            "placeholder": "",
+            "arguments": []
+          },
+          "additonalHeaders": [],
+          "luaScript": "function customize_response(response_header, response_payload, request_headers_to_send, request_payload_to_send)     request_headers_to_send[\"lua-version\"] = \"5.1\"     return request_headers_to_send, request_payload_to_send end",
+          "lua-offload": false
+        }
+      ]
     }
   ]
 }

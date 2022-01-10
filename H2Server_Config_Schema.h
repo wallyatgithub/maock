@@ -43,10 +43,12 @@ class Schema_Request_Match
 public:
     std::vector<Schema_Header_Match> header_match;
     std::vector<Schema_Payload_Match> payload_match;
+    std::string name;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("headers", &this->header_match);
         h->add_property("payload", &this->payload_match, staticjson::Flags::Optional);
+        h->add_property("name", &this->name);
     }
 };
 
@@ -111,6 +113,8 @@ public:
     std::vector<Schema_Response_Header> additonalHeaders;
     std::string luaScript;
     bool lua_offload;
+    uint32_t weight;
+    std::string name;
     explicit Schema_Response_To_Return()
     {
         lua_offload = false;
@@ -123,6 +127,8 @@ public:
         h->add_property("additonalHeaders", &this->additonalHeaders, staticjson::Flags::Optional);
         h->add_property("luaScript", &this->luaScript, staticjson::Flags::Optional);
         h->add_property("lua-offload", &this->lua_offload, staticjson::Flags::Optional);
+        h->add_property("name", &this->name);
+        h->add_property("weight", &this->weight, staticjson::Flags::Optional);
     }
 };
 
@@ -130,11 +136,11 @@ class Schema_Service
 {
 public:
     Schema_Request_Match request;
-    Schema_Response_To_Return response;
+    std::vector<Schema_Response_To_Return> responses;
     void staticjson_init(staticjson::ObjectHandler* h)
     {
         h->add_property("Request", &this->request);
-        h->add_property("Response", &this->response);
+        h->add_property("Responses", &this->responses);
     }
 };
 

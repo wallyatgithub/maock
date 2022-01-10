@@ -427,9 +427,13 @@ public:
     std::string luaScript;
     bool lua_offload;
     double throttle_ratio;
+    std::string name;
+    uint32_t weight;
     explicit H2Server_Response(const Schema_Response_To_Return& resp)
     {
         status_code = resp.status_code;
+        name = resp.name;
+        weight = resp.weight;
         tokenizedPayload = tokenize_string(resp.payload.msg_payload, resp.payload.placeholder);
         for (auto& arg : resp.payload.arguments)
         {

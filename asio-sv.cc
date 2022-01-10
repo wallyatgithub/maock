@@ -226,7 +226,10 @@ int main(int argc, char *argv[]) {
           std::map<const H2Server_Response*, boost::asio::io_service::strand> strands;
           for (auto& service: h2server.services)
           {
-              strands.insert(std::make_pair(&service.second, boost::asio::io_service::strand(work_offload_io_service)));
+              for (auto& response: service.second.responses)
+              {
+                  strands.insert(std::make_pair(&response, boost::asio::io_service::strand(work_offload_io_service)));
+              }
           }
           return strands;
         };
