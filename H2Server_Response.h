@@ -429,7 +429,8 @@ public:
     double throttle_ratio;
     std::string name;
     uint32_t weight;
-    explicit H2Server_Response(const Schema_Response_To_Return& resp)
+    size_t response_index;
+    explicit H2Server_Response(const Schema_Response_To_Return& resp, size_t index)
     {
         status_code = resp.status_code;
         name = resp.name;
@@ -473,9 +474,11 @@ public:
                 luaState.reset();
                 exit(1);
             }
+            lua_settop(luaState.get(), 0);
         }
         lua_offload = resp.lua_offload;
         throttle_ratio = resp.throttle_ratio;
+        response_index = index;
     }
 
     bool update_response_with_lua(std::multimap<std::string, std::string> req_headers,
@@ -623,7 +626,6 @@ public:
         }));
         */
         return std::make_pair<std::string, std::string>(std::move(header_name), std::move(header_value));
-
     }
 
     std::map<std::string, std::string> produce_headers(const H2Server_Request_Message& msg) const

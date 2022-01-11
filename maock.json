@@ -28,7 +28,7 @@
       "Responses": [
         {
           "name": "resp-201",
-          "weight": 99,
+          "weight": 100,
           "throttle-ratio": 0,
           "status-code": 201,
           "payload": {
@@ -68,7 +68,7 @@
         },
         {
           "name": "503",
-          "weight": 100,
+          "weight": 0,
           "throttle-ratio": 0,
           "status-code": 503,
           "payload": {

@@ -174,7 +174,8 @@ class H2Server_Request
 public:
     std::set<Match_Rule> match_rules;
     std::string name;
-    H2Server_Request(const Schema_Request_Match& request_match)
+    size_t request_index;
+    H2Server_Request(const Schema_Request_Match& request_match, size_t index)
     {
         for (auto& schema_header_match : request_match.header_match)
         {
@@ -186,6 +187,7 @@ public:
             match_rules.emplace(Match_Rule(schema_payload_match));
         }
         name = request_match.name;
+        request_index = index;
     }
     bool match(H2Server_Request_Message& request) const
     {
