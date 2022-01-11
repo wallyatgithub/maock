@@ -26,7 +26,7 @@
  
   In Maock configuration, each mock service is represented by a "Service" entry.
   
-  Each Service has a "Request", and a "Response".
+  Each Service has a "Request", and an group of "Response".
   
   Each "Request" defines a set of rule to match the incoming request message.
   
@@ -40,9 +40,15 @@
   
   When the incoming request message passes all the matching rules that a "Request" defines, the "Response" associated with the "Request", may be chosen to generate the response message.
   
-  It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits to find the corresponding "Response" to generate the response message.
+  It is possible to define and load multiple "Service" entries, and Maock will chose the one that best fits.
   
-  Best fit, means, when there are more than one "Requst" can match the incoming request message, then the "Request" with more matching rules will be chosen as matched, and thus the corresponding "Response" is finally picked up to generate the outgoing response messsage.
+  Best fit, means, when there are more than one "Request" can match the incoming request message, then the "Request" with more matching rules will be chosen as matched.
+
+  Then one "Response" from the respective "Response" group, is picked up to generate the final outgoing response messsage.
+  
+  As for which "Response" is picked up, it is determined by the weights of the "Response" in the same group.
+  
+  Of course, you can define one single "Response" instead of several, for each "Request", then, this "Response" is always picked up if the "Request" is matched
   
   "Response" has a list of configuration fields available to customize the actual response:
 

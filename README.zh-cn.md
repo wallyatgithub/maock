@@ -29,7 +29,7 @@
   
   基本原理：
   
-  Maock以Service来组织需要被模拟的服务。每一个Service包含一个Request，和一个Response
+  Maock以Service来组织需要被模拟的服务。每一个Service包含一个Request，和一组Response
   
   Request定义了一系列匹配规则， 
   
@@ -47,7 +47,11 @@
   
   比如，一个Request只包含一个对:path header的匹配，并可以与进入的请求消息匹配成功，
   
-  而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配，所以它对应的Response就会被用来生成最终的应答消息。
+  而另一个Request既包含对:path的匹配，又包含对Json消息体的匹配，并且:path和Json消息皆可以与进入的请求消息成功匹配，相比上面那个只有一条匹配规则的Request，这个Request就是更优匹配，如果没有比它更优的，它就是最优匹配。
+  
+  所以,这个最优匹配的Request对应的Response列表中的某一个Response，就会被用来生成最终的应答消息。
+  
+  而具体选择Response列表中哪一个Response，则是根据Response列表中各自的权重来决定，当然，对一个Request，可以只定义一个Response，这样就会选择这个唯一的Response
      
   Response定义了几项基本内容：
   
