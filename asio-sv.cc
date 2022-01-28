@@ -170,11 +170,13 @@ void update_response_with_lua(const H2Server_Response* matched_response,
                                         uint64_t& matchedResponsesSent)
 {
     matched_response->update_response_with_lua(req_headers, req_payload, resp_headers, resp_payload);
-    auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
-    if (!h2_handler)
+
+    auto io_service =nghttp2::asio_http2::server::http2_handler::find_io_service(handler_id);
+    if (!io_service)
     {
         return;
     }
+
     auto status_code = matched_response->status_code;
     if (resp_headers.count(status))
     {
@@ -189,7 +191,7 @@ void update_response_with_lua(const H2Server_Response* matched_response,
                                            stream_id,
                                            std::ref(matchedResponsesSent)
                                            );
-    h2_handler->io_service().post(send_response_routine);
+    io_service->post(send_response_routine);
 };
 
 int main(int argc, char *argv[]) {
