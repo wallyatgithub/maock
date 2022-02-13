@@ -117,7 +117,7 @@ public:
                 auto range = request.headers.equal_range(header_name);
                 for (auto iter = range.first; iter != range.second; ++iter)
                 {
-                    auto header_val = iter->second;
+                    auto& header_val = iter->second;
                     matched = match(header_val);
                     if (matched)
                     {

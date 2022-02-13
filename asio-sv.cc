@@ -127,7 +127,7 @@ inline void send_response(uint32_t status_code,
         return;
     }
     header_map headers;
-    for (auto header: resp_headers)
+    for (auto& header: resp_headers)
     {
         nghttp2::asio_http2::header_value hdr_val;
         hdr_val.sensitive = false;
@@ -171,7 +171,7 @@ void update_response_with_lua(const H2Server_Response* matched_response,
 {
     matched_response->update_response_with_lua(req_headers, req_payload, resp_headers, resp_payload);
 
-    auto io_service =nghttp2::asio_http2::server::http2_handler::find_io_service(handler_id);
+    auto io_service = nghttp2::asio_http2::server::http2_handler::find_io_service(handler_id);
     if (!io_service)
     {
         return;

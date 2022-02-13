@@ -2,9 +2,9 @@
   "address": "0.0.0.0",
   "port": 8080,
   "threads": 2,
-  "private-key-file": "",
-  "cert-file": "",
-  "caCert-file": "",
+  "private-key-file": "mtls/server.key",
+  "cert-file": "mtls/server.crt",
+  "caCert-file": "mtls/ca.crt",
   "mTLS": false,
   "verbose": false,
   "Service": [
