@@ -175,7 +175,7 @@
                             "type":"string"
                           },
                           "regex":{
-                            "description": "Regular expression in POSIX grep grammar, if given, it would be used to extract a sub string from the value.",
+                            "description": "Regular expression in ECMAScript grammar, if given, it would be used to extract a sub string from the value.",
                             "type":"string"
                           },
                           "sub-string-start":{
@@ -226,7 +226,7 @@
                               "type":"string"
                             },
                             "regex":{
-                              "description": "Regular expression in POSIX grep grammar, if given, it would be used to extract a sub string from the value.",
+                              "description": "Regular expression in ECMAScript grammar, if given, it would be used to extract a sub string from the value.",
                               "type":"string"
                             },
                             "sub-string-start":{

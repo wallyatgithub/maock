@@ -33,7 +33,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-
+#include <algorithm>
+#include <numeric>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -41,6 +42,9 @@
 #include <future>
 #include <memory>
 #include <tuple>
+#ifdef _WINDOWS
+#include <sdkddkver.h>
+#endif
 #include <boost/asio/io_service.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -214,6 +218,11 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    if (config_schema.verbose)
+    {
+        std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
+                          << std::endl;
+    }
     H2Server h2server(config_schema); // sanity check to fail early
 
     if (config_schema.verbose)

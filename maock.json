@@ -2,9 +2,9 @@
   "address": "0.0.0.0",
   "port": 8080,
   "threads": 2,
-  "private-key-file": "mtls/server.key",
-  "cert-file": "mtls/server.crt",
-  "caCert-file": "mtls/ca.crt",
+  "_private-key-file": "mtls/server.key",
+  "_cert-file": "mtls/server.crt",
+  "_caCert-file": "mtls/ca.crt",
   "mTLS": false,
   "verbose": false,
   "Service": [
@@ -57,7 +57,7 @@
                 {
                   "type-of-value": "Header",
                   "value-identifier": ":path",
-                  "regex": "\\/udm-ee\\/subscribe\\/",
+                  "regex": "\\/udm-ee\\/subscribe\\/.*",
                   "sub-string-start": 0,
                   "sub-string-length": -1
                 }

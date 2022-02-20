@@ -12,6 +12,7 @@
   
   Maock支持mTLS。
   
+  Maock原生支持Linux和Windows
 
 # 基本用法与原理
 
@@ -118,6 +119,47 @@
   一个用来生成CentOS7为基础的docker镜像：Dockerfile_CentOS7
   
   一个用来生成以Ubuntu为基础的docker镜像：Dockerfile_Ubuntu
+
+# 如何在Windows平台上从源代码生成Maock的可执行文件：
+
+  首先，需要安装cmake 3.20或者更高的版本，Visual Studio 2022 MSVC x86/x64 build tool，以及Windows 10 SDK
+
+  然后，安装vcpkg，请按照https://vcpkg.io/en/getting-started.html进行vcpkg的安装
+  
+  用vcpkg安装下面的依赖包:
+  
+    boost:x64-windows
+    getopt:x64-windows
+    openssl:x64-windows
+    luajit:x64-windows
+    nghttp2:x64-windows
+    rapidjson:x64-windows
+  
+  下载Maock的源码，用网页下载maock源码的zip包然后解压，或者git clone，都可以，比如，下载位置是c:\tmp
+  
+  接下来, 
+  
+    从开始菜单打开 "x64 Native Tools Command Prompt"
+    
+    C:\tmp>cd maock
+    
+    C:\tmp\maock>mkdir build
+    
+    C:\tmp\maock>cd build
+    
+    C:\tmp\maock\build>cmake ../ -DCMAKE_TOOLCHAIN_FILE=_REPLACE_THIS_WITH_YOUR_VCPKG_PATH_\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+    
+    注意，请用vcpkg的实际安装路径替换 _REPLACE_THIS_WITH_YOUR_VCPKG_PATH_
+    
+    可选步骤：
+    如果想要链接到静态库，请在上述cmake命令之后附加下面的参数
+    -DVCPKG_TARGET_TRIPLET=x64-windows-static 
+    注意，这意味着需要安装上述的依赖包的x64-windows-static triplet
+    
+    C:\tmp\maock\build>cmake --build ./ --config=Release
+  
+  等待一会，上述命令会生成maock.exe
+  
   
 # Maock的吞吐量有多大：
 

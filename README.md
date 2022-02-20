@@ -10,6 +10,8 @@
   
   Maock support mTLS.
   
+  Maock supports both Linux and Windows natively.
+  
 # How Maock works 
 
   Maock supports Json file to customize mock services.
@@ -125,6 +127,42 @@
   
   Dockerfile_Ubuntu: Ubuntu latest based docker image
 
+# How to build Maock on Windows
+
+  cmake 3.20 or later, Visual Studio 2022 MSVC x86/x64 build tool, and windows 10 SDK need to be installed first
+
+  vcpkg is also needed. Please follow https://vcpkg.io/en/getting-started.html to install and set up vcpkg
+  
+  These dependency packages need to be installed to vcpkg:
+  
+    boost:x64-windows
+    getopt:x64-windows
+    openssl:x64-windows
+    luajit:x64-windows
+    nghttp2:x64-windows
+    rapidjson:x64-windows
+  
+  Next, download maock source with http or git, for example, maock is downloaded to c:\tmp
+  
+  Then, 
+  
+    Open "x64 Native Tools Command Prompt" from start menu
+    
+    C:\tmp>cd maock
+    
+    C:\tmp\maock>mkdir build
+    
+    C:\tmp\maock>cd build
+    
+    C:\tmp\maock\build>cmake ../ -DCMAKE_TOOLCHAIN_FILE=_REPLACE_THIS_WITH_YOUR_VCPKG_PATH_\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+    
+    Make sure to replace _REPLACE_THIS_WITH_YOUR_VCPKG_PATH_ with your actual vcpkg path.
+    
+    Opitonally, add -DVCPKG_TARGET_TRIPLET=x64-windows-static for x64 static link (dependency packages of x64-windows-static triplet should be installed to vcpkg)
+    
+    C:\tmp\maock\build>cmake --build ./ --config=Release
+  
+  maock.exe will then be generated
   
 # What is the throughput of Maock:
 

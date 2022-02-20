@@ -311,7 +311,14 @@ public:
         substring_length = payload_argument.substring_length;
         if (payload_argument.regex.size())
         {
-            reg_exp.assign(payload_argument.regex, std::regex_constants::grep|std::regex_constants::optimize);
+            try
+            {
+                reg_exp.assign(payload_argument.regex, std::regex_constants::ECMAScript|std::regex_constants::optimize);
+            }
+            catch (std::regex_error e)
+            {
+                std::cerr<<"invalid reg exp: "<<payload_argument.regex<<" "<<e.what()<<std::endl;
+            }
             regex = payload_argument.regex;
             regex_present = true;
         }

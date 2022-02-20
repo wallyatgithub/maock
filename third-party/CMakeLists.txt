@@ -3,6 +3,25 @@ set(LIBLLHTTP_SOURCES
   llhttp/src/http.c
   llhttp/src/llhttp.c
 )
+
+IF(WIN32)
+    add_definitions(-DNOMINMAX=1)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    #add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
+endif()
+
+if(VCPKG_TARGET_TRIPLET MATCHES "${__ARCH}-windows-static")
+    if(MSVC)
+        add_compile_options(
+            $<$<CONFIG:>:/MT>
+            $<$<CONFIG:Debug>:/MTd>
+            $<$<CONFIG:Release>:/MT>
+        )
+    endif()
+endif()
+
+find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h)
+
 add_library(llhttp OBJECT ${LIBLLHTTP_SOURCES})
 target_include_directories(llhttp PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/llhttp/include"
@@ -81,6 +100,7 @@ endif()
 include_directories(
 "${CMAKE_CURRENT_SOURCE_DIR}/"
 "${CMAKE_CURRENT_SOURCE_DIR}/StaticJSON/include"
+"${RAPIDJSON_INCLUDE_DIR}"
 )
 
 set(LIBSTATICJSON_SOURCE
