@@ -12,7 +12,7 @@
   
   Maock supports both Linux and Windows natively.
   
-# How Maock works 
+# How Maock works / Usage 
 
   Maock supports Json file to customize mock services.
  
@@ -114,6 +114,33 @@
 
   http://brutusin.org/json-forms/ 
   
+# How to have a quick try
+
+  Download the pre-built Maock executable for Windows or linux respectively from https://github.com/wallyatgithub/maock/releases
+  
+  Unzip/Untar, then run it:
+
+  ./maock ./maock.json # for linux
+  
+  or
+  
+  maock.exe maock.json # for windows 10
+  
+  Now Maock is up and running on port 8081 with the sample rules.
+ 
+  Download the pre-built H2loadrunner executable for Windows or linux respectively from https://github.com/wallyatgithub/h2loadrunner/releases
+  
+  Unzip/Untar, then run it:
+  
+  ./h2loadrunner --config-file=./h2load.json # for linux
+  
+  or
+  
+  h2loadrunner.exe --config-file=h2load.json # for windows 10
+  
+  Now H2loadrunner is up and sending test traffic through 2 connections to Maock, each connection has request per second = 100.
+  
+  Check the output of Maock and H2loadrunner for the ongoing traffic statistics.
 
 # How to build Maock from the source：
 

@@ -3,6 +3,10 @@ project(maock VERSION 0.1)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
+if (DEFINED ALPINE_STATIC)
+     add_link_options(-static)
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(Boost_USE_STATIC_LIBS ON)

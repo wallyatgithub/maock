@@ -1,7 +1,7 @@
 {
   "address": "0.0.0.0",
-  "port": 8080,
-  "threads": 2,
+  "port": 8081,
+  "threads": 4,
   "_private-key-file": "mtls/server.key",
   "_cert-file": "mtls/server.crt",
   "_caCert-file": "mtls/ca.crt",

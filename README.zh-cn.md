@@ -111,7 +111,35 @@
 
   http://brutusin.org/json-forms/ 
   
+# 如何快速尝试一下
 
+  从 https://github.com/wallyatgithub/maock/releases 下载预编译好的Linux或者Windows 10的Maock可执行文件的压缩包
+  
+  解压，然后运行:
+
+  ./maock ./maock.json # for linux
+  
+  or
+  
+  maock.exe maock.json # for windows 10
+  
+  Maock现在在8081端口监听，并且已经加载了预定义好的规则
+ 
+  从 https://github.com/wallyatgithub/h2loadrunner/releases 下载预编译好的Linux或者Windows 10的H2loadrunner可执行文件的压缩包
+  
+  解压，然后运行:
+  
+  ./h2loadrunner --config-file=./h2load.json # for linux
+  
+  or
+  
+  h2loadrunner.exe --config-file=h2load.json # for windows 10
+  
+  现在，H2loadrunner已经启动，并向127.0.0.1:8081的Maock建立了两条连接，每条连接的测试流量是每秒100个请求
+
+  请查看Maock和Hloadrunner的各自屏幕输出，来获得当前的流量统计信息
+  
+  
 # 如何从源代码构建Maock：
 
   Maock提供了两个dockerfile，
