@@ -30,8 +30,8 @@ struct ResponseStatistics
 };
 
 void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
-                                    std::vector<std::vector<std::vector<ResponseStatistics>>>& respStats,
-                                    H2Server_Config_Schema& config_schema);
+                            std::vector<std::vector<std::vector<ResponseStatistics>>>& respStats,
+                            H2Server_Config_Schema& config_schema);
 
 void close_stream(uint64_t& handler_id, int32_t stream_id);
 
@@ -40,28 +40,28 @@ size_t get_req_name_max_size(const H2Server_Config_Schema& config_schema);
 size_t get_resp_name_max_size(const H2Server_Config_Schema& config_schema);
 
 void send_response(uint32_t status_code,
-                        const std::map<std::string, std::string>& resp_headers,
-                        const std::string& resp_payload,
-                        uint64_t handler_id,
-                        int32_t stream_id,
-                        uint64_t& matchedResponsesSent
-                        );
+                   const std::map<std::string, std::string>& resp_headers,
+                   const std::string& resp_payload,
+                   uint64_t handler_id,
+                   int32_t stream_id,
+                   uint64_t& matchedResponsesSent
+                  );
 
 void send_response_from_another_thread(boost::asio::io_service* target_io_service,
-                                                    uint64_t handler_id,
-                                                    int32_t stream_id,
-                                                    std::map<std::string, std::string>& resp_headers,
-                                                    std::string& resp_payload
-                                                    );
+                                       uint64_t handler_id,
+                                       int32_t stream_id,
+                                       std::map<std::string, std::string>& resp_headers,
+                                       std::string& resp_payload
+                                      );
 
 void update_response_with_lua(const H2Server_Response* matched_response,
-                                        std::multimap<std::string, std::string>& req_headers,
-                                        std::string& req_payload,
-                                        std::map<std::string, std::string>& resp_headers,
-                                        std::string& resp_payload,
-                                        uint64_t handler_id,
-                                        int32_t stream_id,
-                                        uint64_t& matchedResponsesSent);
+                              std::multimap<std::string, std::string>& req_headers,
+                              std::string& req_payload,
+                              std::map<std::string, std::string>& resp_headers,
+                              std::string& resp_payload,
+                              uint64_t handler_id,
+                              int32_t stream_id,
+                              uint64_t& matchedResponsesSent);
 
 void asio_svr_entry(const std::string& config_in_json);
 

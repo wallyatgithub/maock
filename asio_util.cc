@@ -35,21 +35,21 @@ size_t get_resp_name_max_size(const H2Server_Config_Schema& config_schema)
     for (size_t req_index = 0; req_index < config_schema.service.size(); req_index++)
     {
         for (size_t resp_index = 0; resp_index < config_schema.service[req_index].responses.size(); resp_index++)
-        if (config_schema.service[req_index].responses[resp_index].name.size() > width)
-        {
-            width = config_schema.service[req_index].responses[resp_index].name.size();
-        }
+            if (config_schema.service[req_index].responses[resp_index].name.size() > width)
+            {
+                width = config_schema.service[req_index].responses[resp_index].name.size();
+            }
     }
     return width;
 }
 
 void send_response(uint32_t status_code,
-                        const std::map<std::string, std::string>& resp_headers,
-                        const std::string& resp_payload,
-                        uint64_t handler_id,
-                        int32_t stream_id,
-                        uint64_t& matchedResponsesSent
-                        )
+                   const std::map<std::string, std::string>& resp_headers,
+                   const std::string& resp_payload,
+                   uint64_t handler_id,
+                   int32_t stream_id,
+                   uint64_t& matchedResponsesSent
+                  )
 {
     auto h2_handler = nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id);
     if (!h2_handler)
@@ -68,7 +68,7 @@ void send_response(uint32_t status_code,
         return;
     }
     nghttp2::asio_http2::header_map headers;
-    for (auto& header: resp_headers)
+    for (auto& header : resp_headers)
     {
         nghttp2::asio_http2::header_value hdr_val;
         hdr_val.sensitive = false;
@@ -76,7 +76,7 @@ void send_response(uint32_t status_code,
         headers.insert(std::make_pair(header.first, hdr_val));
         if (debug_mode)
         {
-            std::cout<<"sending header "<<header.first<<": "<<header.second<<std::endl;
+            std::cout << "sending header " << header.first << ": " << header.second << std::endl;
         }
     }
     if (resp_payload.size())
@@ -88,12 +88,12 @@ void send_response(uint32_t status_code,
     }
     if (debug_mode && resp_payload.size())
     {
-        std::cout<<"sending header "<<"Content-Length: "<<resp_payload.size()<<std::endl;
-        std::cout<<"sending msg body "<<resp_payload<<std::endl;
+        std::cout << "sending header " << "Content-Length: " << resp_payload.size() << std::endl;
+        std::cout << "sending msg body " << resp_payload << std::endl;
     }
     if (debug_mode)
     {
-        std::cout<<"sending status code: "<<status_code<<std::endl;
+        std::cout << "sending status code: " << status_code << std::endl;
     }
     auto& res = orig_stream->response();
     res.write_head(status_code, headers);
@@ -103,11 +103,11 @@ void send_response(uint32_t status_code,
 
 
 void send_response_from_another_thread(boost::asio::io_service* target_io_service,
-                                                    uint64_t handler_id,
-                                                    int32_t stream_id,
-                                                    std::map<std::string, std::string>& resp_headers,
-                                                    std::string& resp_payload
-                                                    )
+                                       uint64_t handler_id,
+                                       int32_t stream_id,
+                                       std::map<std::string, std::string>& resp_headers,
+                                       std::string& resp_payload
+                                      )
 {
     thread_local static uint64_t matchedResponsesSent;
     if (!target_io_service)
@@ -124,13 +124,13 @@ void send_response_from_another_thread(boost::asio::io_service* target_io_servic
 }
 
 void update_response_with_lua(const H2Server_Response* matched_response,
-                                        std::multimap<std::string, std::string>& req_headers,
-                                        std::string& req_payload,
-                                        std::map<std::string, std::string>& resp_headers,
-                                        std::string& resp_payload,
-                                        uint64_t handler_id,
-                                        int32_t stream_id,
-                                        uint64_t& matchedResponsesSent)
+                              std::multimap<std::string, std::string>& req_headers,
+                              std::string& req_payload,
+                              std::map<std::string, std::string>& resp_headers,
+                              std::string& resp_payload,
+                              uint64_t handler_id,
+                              int32_t stream_id,
+                              uint64_t& matchedResponsesSent)
 {
     matched_response->update_response_with_lua(req_headers, req_payload, resp_headers, resp_payload);
 
@@ -153,7 +153,7 @@ void update_response_with_lua(const H2Server_Response* matched_response,
                                            handler_id,
                                            stream_id,
                                            std::ref(matchedResponsesSent)
-                                           );
+                                          );
     io_service->post(send_response_routine);
 };
 
@@ -191,7 +191,7 @@ void asio_svr_entry(const std::string& config_in_json)
         if (config_schema.verbose)
         {
             std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
-                              << std::endl;
+                      << std::endl;
         }
         H2Server h2server(config_schema); // sanity check to fail early
 
@@ -231,13 +231,22 @@ void asio_svr_entry(const std::string& config_in_json)
 
         for (size_t req_idx = 0; req_idx < config_schema.service.size(); req_idx++)
         {
-            std::vector<std::vector<ResponseStatistics>> perServiceStats(config_schema.service[req_idx].responses.size(), std::vector<ResponseStatistics>(num_threads));
+            std::vector<std::vector<ResponseStatistics>> perServiceStats(config_schema.service[req_idx].responses.size(),
+                                                                         std::vector<ResponseStatistics>(num_threads));
             respStats.push_back(perServiceStats);
         }
 
         server.num_threads(num_threads);
 
-        server.handle("/", [&work_offload_io_service, &config_schema, &respStats, &threadIndex, &totalReqsReceived](const nghttp2::asio_http2::server::request &req, const nghttp2::asio_http2::server::response &res, uint64_t handler_id, int32_t stream_id) {
+        server.handle("/", [&work_offload_io_service, &config_schema,
+                            &respStats, &threadIndex,
+                            &totalReqsReceived
+                           ]
+                            (const nghttp2::asio_http2::server::request& req,
+                             const nghttp2::asio_http2::server::response& res,
+                             uint64_t handler_id, int32_t stream_id
+                            )
+        {
 
             static thread_local auto thread_index = threadIndex++;
             static thread_local H2Server& h2server = get_H2Server_match_Instances()[thread_index];
@@ -251,15 +260,15 @@ void asio_svr_entry(const std::string& config_in_json)
             static thread_local auto& reqReceived = totalReqsReceived[thread_index];
             auto init_strand = [&work_offload_io_service]()
             {
-              std::map<const H2Server_Response*, boost::asio::io_service::strand> strands;
-              for (auto& service: h2server.services)
-              {
-                  for (auto& response: service.second.responses)
-                  {
-                      strands.insert(std::make_pair(&response, boost::asio::io_service::strand(work_offload_io_service)));
-                  }
-              }
-              return strands;
+                std::map<const H2Server_Response*, boost::asio::io_service::strand> strands;
+                for (auto& service : h2server.services)
+                {
+                    for (auto& response : service.second.responses)
+                    {
+                        strands.insert(std::make_pair(&response, boost::asio::io_service::strand(work_offload_io_service)));
+                    }
+                }
+                return strands;
             };
             static thread_local auto strands = init_strand();
 
@@ -275,11 +284,11 @@ void asio_svr_entry(const std::string& config_in_json)
                 if (matched_service->first.get_request_processor())
                 {
                     matched_service->first.get_request_processor()(h2server.io_service,
-                                                                    handler_id,
-                                                                    stream_id,
-                                                                    msg.headers,
-                                                                    req.unmutable_payload()
-                                                                    );
+                                                                   handler_id,
+                                                                   stream_id,
+                                                                   msg.headers,
+                                                                   req.unmutable_payload()
+                                                                  );
                 }
                 else
                 {
@@ -312,76 +321,78 @@ void asio_svr_entry(const std::string& config_in_json)
                         }
                         else
                         {
-                           matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
-                           if (response_headers.count(status))
-                           {
-                               status_code = atoi(response_headers[status].c_str());
-                           }
-                           response_headers.erase(status);
+                            matched_response->update_response_with_lua(msg.headers, req.unmutable_payload(), response_headers, response_payload);
+                            if (response_headers.count(status))
+                            {
+                                status_code = atoi(response_headers[status].c_str());
+                            }
+                            response_headers.erase(status);
                         }
                     }
-                    send_response(status_code, response_headers, response_payload, handler_id, stream_id, respStats[req_index][resp_index][thread_index].response_sent);
+                    send_response(status_code, response_headers, response_payload, handler_id, stream_id,
+                                  respStats[req_index][resp_index][thread_index].response_sent);
                 }
             }
             else
             {
-              res.write_head(404, {{"reason", {"no match found"}}});
-              res.end("no matched entry found\n");
+                res.write_head(404, {{"reason", {"no match found"}}});
+                res.end("no matched entry found\n");
             }
         });
 
-        std::cout<<"addr: "<<addr<<", port: "<<port<<std::endl;
+        std::cout << "addr: " << addr << ", port: " << port << std::endl;
         start_statistic_thread(totalReqsReceived, respStats, config_schema);
-        if (config_schema.cert_file.size() && config_schema.private_key_file.size()) {
-          if (config_schema.verbose)
-          {
-              std::cout<<"cert file: "<<config_schema.cert_file<<std::endl;
-              std::cout<<"private key file: "<<config_schema.private_key_file<<std::endl;
-          }
-          boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
-          tls.use_private_key_file(config_schema.private_key_file, boost::asio::ssl::context::pem);
-          tls.use_certificate_chain_file(config_schema.cert_file);
-          if (config_schema.enable_mTLS)
-          {
-              if (config_schema.verbose)
-              {
-                  std::cout<<"ca cert file: "<<config_schema.ca_cert_file<<std::endl;
-              }
-              if (config_schema.ca_cert_file.size())
-              {
-                  tls.load_verify_file(config_schema.ca_cert_file);
-              }
-              else
-              {
-                  std::cerr<<"mTLS enabled, but no CA cert file given, mTLS is thus disabled"<<std::endl;
-                  config_schema.enable_mTLS = false;
-              }
-          }
+        if (config_schema.cert_file.size() && config_schema.private_key_file.size())
+        {
+            if (config_schema.verbose)
+            {
+                std::cout << "cert file: " << config_schema.cert_file << std::endl;
+                std::cout << "private key file: " << config_schema.private_key_file << std::endl;
+            }
+            boost::asio::ssl::context tls(boost::asio::ssl::context::sslv23);
+            tls.use_private_key_file(config_schema.private_key_file, boost::asio::ssl::context::pem);
+            tls.use_certificate_chain_file(config_schema.cert_file);
+            if (config_schema.enable_mTLS)
+            {
+                if (config_schema.verbose)
+                {
+                    std::cout << "ca cert file: " << config_schema.ca_cert_file << std::endl;
+                }
+                if (config_schema.ca_cert_file.size())
+                {
+                    tls.load_verify_file(config_schema.ca_cert_file);
+                }
+                else
+                {
+                    std::cerr << "mTLS enabled, but no CA cert file given, mTLS is thus disabled" << std::endl;
+                    config_schema.enable_mTLS = false;
+                }
+            }
 
-          nghttp2::asio_http2::server::configure_tls_context_easy(ec, tls, config_schema.enable_mTLS);
+            nghttp2::asio_http2::server::configure_tls_context_easy(ec, tls, config_schema.enable_mTLS);
 
-          if (server.listen_and_serve(ec, tls, addr, port))
-          {
-            std::cerr << "error: " << ec.message() << std::endl;
-          }
+            if (server.listen_and_serve(ec, tls, addr, port))
+            {
+                std::cerr << "error: " << ec.message() << std::endl;
+            }
         }
         else
         {
-          if (server.listen_and_serve(ec, addr, port))
-          {
-            std::cerr << "error: " << ec.message() << std::endl;
-          }
+            if (server.listen_and_serve(ec, addr, port))
+            {
+                std::cerr << "error: " << ec.message() << std::endl;
+            }
         }
-    } 
-    catch (std::exception &e)
+    }
+    catch (std::exception& e)
     {
         std::cerr << "exception: " << e.what() << "\n";
     }
 }
 
 void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
-                                    std::vector<std::vector<std::vector<ResponseStatistics>>>& respStats,
-                                    H2Server_Config_Schema& config_schema)
+                            std::vector<std::vector<std::vector<ResponseStatistics>>>& respStats,
+                            H2Server_Config_Schema& config_schema)
 {
     auto stats_func = [&totalReqsReceived, &respStats, &config_schema]()
     {
@@ -396,11 +407,11 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
         uint64_t total_resp_sent_till_now = 0;
         uint64_t total_resp_throttled_till_now = 0;
         uint64_t counter = 0;
-    
+
         auto req_name_width = get_req_name_max_size(config_schema);
         auto resp_name_width = get_resp_name_max_size(config_schema);
         size_t request_width = 0;
-    
+
         auto period_start = std::chrono::steady_clock::now();
         while (true)
         {
@@ -408,59 +419,60 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
             std::this_thread::sleep_for(std::chrono::seconds(1));
             if (counter % 10 == 0)
             {
-                SStream << "req-name,   resp-name,   msg-total,   throttled-total, rps,      throttled-rps"<<std::endl;
+                SStream << "req-name,   resp-name,   msg-total,   throttled-total, rps,      throttled-rps" << std::endl;
             }
             counter++;
-    
+
             auto resp_sent_till_last = resp_sent_till_now;
             auto resp_throttled_till_last = resp_throttled_till_now;
-    
+
             auto total_req_received_till_last = total_req_received_till_now;
             auto total_resp_sent_till_last = total_resp_sent_till_now;
             auto total_resp_throttled_till_last = total_resp_throttled_till_now;
-    
+
             total_req_received_till_now = std::accumulate(totalReqsReceived.begin(), totalReqsReceived.end(), 0);
             total_resp_sent_till_now = 0;
             total_resp_throttled_till_now = 0;
-    
+
             for (size_t req_index = 0; req_index < config_schema.service.size(); req_index++)
             {
                 for (size_t resp_index = 0; resp_index < config_schema.service[req_index].responses.size(); resp_index++)
                 {
                     resp_sent_till_now[req_index][resp_index] =
-                    std::accumulate(respStats[req_index][resp_index].begin(),
-                                    respStats[req_index][resp_index].end(),
-                                    0,
-                                    [](uint64_t sum, const ResponseStatistics& val)
-                                    {
-                                        return sum + val.response_sent;
-                                    }
-                                    );
+                        std::accumulate(respStats[req_index][resp_index].begin(),
+                                        respStats[req_index][resp_index].end(),
+                                        0,
+                                        [](uint64_t sum, const ResponseStatistics & val)
+                    {
+                        return sum + val.response_sent;
+                    }
+                                       );
                     resp_throttled_till_now[req_index][resp_index] =
-                    std::accumulate(respStats[req_index][resp_index].begin(),
-                                    respStats[req_index][resp_index].end(),
-                                    0,
-                                    [](uint64_t sum, const ResponseStatistics& val)
-                                    {
-                                        return sum + val.response_throttled;
-                                    }
-                                    );
+                        std::accumulate(respStats[req_index][resp_index].begin(),
+                                        respStats[req_index][resp_index].end(),
+                                        0,
+                                        [](uint64_t sum, const ResponseStatistics & val)
+                    {
+                        return sum + val.response_throttled;
+                    }
+                                       );
                     total_resp_sent_till_now += resp_sent_till_now[req_index][resp_index];
                     total_resp_throttled_till_now += resp_throttled_till_now[req_index][resp_index];
                 }
             }
-    
+
             auto delta_Req_Received = total_req_received_till_now - total_req_received_till_last;
-            auto delta_Resp = total_resp_sent_till_now + total_resp_throttled_till_now - total_resp_sent_till_last - total_resp_throttled_till_last;
+            auto delta_Resp = total_resp_sent_till_now + total_resp_throttled_till_now - total_resp_sent_till_last -
+                              total_resp_throttled_till_last;
             if (!delta_Req_Received && !delta_Resp)
             {
                 continue;
             }
-            
+
             auto period_end = std::chrono::steady_clock::now();
             auto period_duration = std::chrono::duration_cast<std::chrono::milliseconds>(period_end - period_start).count();
             period_start = period_end;
-    
+
             for (size_t req_index = 0; req_index < config_schema.service.size(); req_index++)
             {
                 for (size_t resp_index = 0; resp_index < config_schema.service[req_index].responses.size(); resp_index++)
@@ -469,29 +481,34 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
                             << "," << std::setw(resp_name_width) << config_schema.service[req_index].responses[resp_index].name
                             << "," << std::setw(req_name_width) << resp_sent_till_now[req_index][resp_index]
                             << "," << std::setw(req_name_width) << resp_throttled_till_now[req_index][resp_index]
-                            << "," << std::setw(req_name_width) << ((resp_sent_till_now[req_index][resp_index] - resp_sent_till_last[req_index][resp_index])*std::milli::den)/period_duration
-                            << "," << std::setw(req_name_width) << ((resp_throttled_till_now[req_index][resp_index] - resp_throttled_till_last[req_index][resp_index])*std::milli::den)/period_duration
-                            <<std::endl;
+                            << "," << std::setw(req_name_width) << ((resp_sent_till_now[req_index][resp_index] -
+                                                                     resp_sent_till_last[req_index][resp_index])*std::milli::den) / period_duration
+                            << "," << std::setw(req_name_width) << ((resp_throttled_till_now[req_index][resp_index] -
+                                                                     resp_throttled_till_last[req_index][resp_index])*std::milli::den) / period_duration
+                            << std::endl;
                 }
             }
             SStream <<     std::setw(req_name_width) << "SUM"
                     << "," << std::setw(resp_name_width) << "SUM"
                     << "," << std::setw(req_name_width) << total_resp_sent_till_now
                     << "," << std::setw(req_name_width) << total_resp_throttled_till_now
-                    << "," << std::setw(req_name_width) << ((total_resp_sent_till_now - total_resp_sent_till_last)*std::milli::den)/period_duration
-                    << "," << std::setw(req_name_width) << ((total_resp_throttled_till_now - total_resp_throttled_till_last)*std::milli::den)/period_duration
-                    <<std::endl;
-            std::cout<<SStream.str();
-    
+                    << "," << std::setw(req_name_width) << ((total_resp_sent_till_now - total_resp_sent_till_last)*std::milli::den) /
+                    period_duration
+                    << "," << std::setw(req_name_width) << ((total_resp_throttled_till_now - total_resp_throttled_till_last)
+                                                            *std::milli::den) / period_duration
+                    << std::endl;
+            std::cout << SStream.str();
+
             SStream <<     std::setw(req_name_width) << "UNMATCHED"
                     << "," << std::setw(resp_name_width) << "---"
-                    << "," << std::setw(req_name_width) << total_req_received_till_now - total_resp_sent_till_now - total_resp_throttled_till_now
+                    << "," << std::setw(req_name_width) << total_req_received_till_now - total_resp_sent_till_now -
+                    total_resp_throttled_till_now
                     << "," << std::setw(req_name_width) << "---"
-                    << "," << std::setw(req_name_width) << ((delta_Req_Received - delta_Resp)*std::milli::den)/period_duration
+                    << "," << std::setw(req_name_width) << ((delta_Req_Received - delta_Resp)*std::milli::den) / period_duration
                     << "," << std::setw(req_name_width) << "---"
-                    <<std::endl;
-            std::cout<<SStream.str();
-    
+                    << std::endl;
+            std::cout << SStream.str();
+
             auto new_request_width = std::to_string(total_resp_sent_till_now).size();
             request_width = request_width > new_request_width ? request_width : new_request_width;
         }
