@@ -34,7 +34,7 @@ const std::string status = ":status";
 
 const std::string customize_response = "customize_response";
 
-std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
+inline std::vector<std::string> tokenize_string(const std::string& source, const std::string& delimeter)
 {
     std::vector<std::string> retVec;
     size_t start = 0;
@@ -143,7 +143,7 @@ const rapidjson::Value* getNthName(const RapidJsonType& d, int64_t n)
     return nullptr;
 }
 
-std::vector<std::string> splitComplexJsonPointer(const std::string& json_pointer)
+inline std::vector<std::string> splitComplexJsonPointer(const std::string& json_pointer)
 {
     std::vector<std::string> JsonPointers;
     std::string extended_json_pointer_indicator = "/~#";

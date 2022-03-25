@@ -152,7 +152,7 @@
 
   首先，需要安装cmake 3.20或者更高的版本，Visual Studio 2022 MSVC x86/x64 build tool，以及Windows 10 SDK
 
-  然后，安装vcpkg，请按照https://vcpkg.io/en/getting-started.html进行vcpkg的安装
+  然后，安装vcpkg，请按照https://vcpkg.io/en/getting-started.html 进行vcpkg的安装
   
   用vcpkg安装下面的依赖包:
   

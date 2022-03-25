@@ -8,7 +8,7 @@
 #include "rapidjson/schema.h"
 #include "rapidjson/prettywriter.h"
 
-bool debug_mode = false;
+extern bool debug_mode;
 
 class Schema_Header_Match
 {

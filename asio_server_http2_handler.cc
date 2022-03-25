@@ -286,6 +286,7 @@ http2_handler::~http2_handler() {
 
 http2_handler* http2_handler::find_http2_handler(uint64_t handler_id)
 {
+    std::lock_guard<std::mutex> guard(handler_mutex);
     auto it = alive_handlers.find(handler_id);
     if (it != alive_handlers.end())
     {
@@ -296,6 +297,7 @@ http2_handler* http2_handler::find_http2_handler(uint64_t handler_id)
 
 boost::asio::io_service* http2_handler::find_io_service(uint64_t handler_id)
 {
+    std::lock_guard<std::mutex> guard(handler_mutex);
     auto it = handler_io_service.find(handler_id);
     if (it != handler_io_service.end())
     {

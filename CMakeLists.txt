@@ -137,10 +137,7 @@ include_directories(
   "${OPENSSL_INCLUDE_DIR}"
 )
 
-set(NGHTTP2_ASIO_SV_SOURCES
-  util.cc http2.cc
-  tls.cc
-  timegm.c
+set(ASIO_SV_SOURCES
   asio_common.cc
   asio_io_service_pool.cc
   asio_server_http2.cc
@@ -155,6 +152,15 @@ set(NGHTTP2_ASIO_SV_SOURCES
   asio_server_serve_mux.cc
   asio_server_request_handler.cc
   asio_server_tls_context.cc
+  asio_util.cc
+)
+
+set(NGHTTP2_ASIO_SV_SOURCES
+  util.cc
+  http2.cc
+  tls.cc
+  timegm.c
+  ${ASIO_SV_SOURCES}
 )
 
 add_library(nghttp2_asio_sv OBJECT

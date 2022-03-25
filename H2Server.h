@@ -2,6 +2,8 @@
 #define H2SERVER_H
 
 #include <map>
+#include <boost/asio.hpp>
+
 #include "H2Server_Request.h"
 #include "H2Server_Request_Message.h"
 
@@ -72,9 +74,10 @@ public:
     }
 };
 
-std::ostream& operator<<(std::ostream& o, const H2Server_Request& request)
+inline std::ostream& operator<<(std::ostream& o, const H2Server_Request& request)
 {
-    o << "H2Server_Request:" << std::endl;
+    o << std::endl << "H2Server_Request:" << request.name << std::endl;
+    o << "{" << std::endl;
     for (auto& match : request.match_rules)
     {
         o << "match_rule: " << match.match_type
@@ -84,13 +87,14 @@ std::ostream& operator<<(std::ostream& o, const H2Server_Request& request)
           << ", " << match.unique_id
           << std::endl;
     }
+    o << "}" << std::endl;
     return o;
 }
 
-std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
+inline std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
 {
-    o << "H2Server_Response:" << std::endl;
-
+    o << "H2Server_Response:" << response.name << std::endl;
+    o << "{" << std::endl;
     o << "status_code:" << response.status_code << std::endl;
     o << "name:" << response.name << std::endl;
     o << "weight:" << response.weight << std::endl;
@@ -129,7 +133,7 @@ std::ostream& operator<<(std::ostream& o, const H2Server_Response& response)
         o << "substring_start: " << arg.substring_start << std::endl;
         o << "substring_length: " << arg.substring_length << std::endl;
     }
-    o << std::endl;
+    o << "}" << std::endl;
     return o;
 }
 
@@ -138,6 +142,7 @@ class H2Server
 {
 public:
     std::map<H2Server_Request, H2Server_Response_Group> services;
+    boost::asio::io_service* io_service = nullptr;
 
     void build_match_rule_unique_id(std::map<H2Server_Request, H2Server_Response_Group>& services)
     {
@@ -170,6 +175,44 @@ public:
             services.insert(std::make_pair(std::move(service.request), std::move(service.response_group)));
         }
         build_match_rule_unique_id(services);
+    }
+
+    void set_io_service(boost::asio::io_service* io_serv)
+    {
+        io_service = io_serv;
+    }
+
+    std::map<H2Server_Request, H2Server_Response_Group>::reverse_iterator get_matched_request(H2Server_Request_Message& msg, int64_t& matched_request_index)
+    {
+        matched_request_index = -1;
+        for (auto iter = services.rbegin(); iter != services.rend(); iter++)
+        {
+            if (debug_mode)
+            {
+                std::cout<<"checking request: "<<iter->first<<std::endl;
+            }
+            if (iter->first.match(msg))
+            {
+                matched_request_index = iter->first.request_index;
+                if (debug_mode)
+                {
+                    std::cout<<__LINE__<<": matched request found, request index: "<<matched_request_index<<std::endl;
+                }
+                return iter;
+            }
+        }
+        return services.rend();
+    }
+
+    H2Server_Response* get_response_to_return(std::map<H2Server_Request, H2Server_Response_Group>::reverse_iterator service, size_t& matched_response_index)
+    {
+        size_t index = service->second.select_response();
+        if (debug_mode)
+        {
+            std::cout<<"response to be returned: "<<service->second.responses[index]<<std::endl;
+        }
+        matched_response_index = index;
+        return &service->second.responses[index];
     }
 
     H2Server_Response* get_response_to_return(H2Server_Request_Message& msg, size_t& matched_request_index, size_t& matched_response_index)

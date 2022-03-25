@@ -50,7 +50,7 @@
         "description":"A pair of Request and Responses",
         "properties":{
           "Request":{
-            "description": "Request specifies the desired pattern that a incoming request message should have, which includes a list of match rules of received headers, and optionally a list of match rules of Json payload; A Request is matched only if all the rules of the Request are all matched successful",
+            "description": "Request specifies the desired pattern that a incoming request message should have, which includes a list of match rules of received headers, and optionally a list of match rules of Json payload; A Request is matched only if all the rules of the Request are all successfully matched",
             "type":"object",
             "properties":{
               "name":{
