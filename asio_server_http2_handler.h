@@ -95,7 +95,6 @@ public:
 
   const std::string &http_date();
   static http2_handler* find_http2_handler(uint64_t handler_id);
-  static boost::asio::io_service* find_io_service(uint64_t handler_id);
 
   uint64_t get_handler_id();
 
@@ -171,9 +170,7 @@ private:
   time_t tstamp_cached_;
   std::string formatted_date_;
   static std::atomic<uint64_t> handler_unique_id;
-  static std::map<uint64_t, http2_handler*> alive_handlers;
-  static std::map<uint64_t, boost::asio::io_service*> handler_io_service;
-  static std::mutex handler_mutex;
+  static thread_local std::map<uint64_t, http2_handler*> alive_handlers;
   uint64_t this_handler_id;
 };
 

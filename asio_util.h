@@ -54,7 +54,8 @@ void send_response_from_another_thread(boost::asio::io_service* target_io_servic
                                        std::string& resp_payload
                                       );
 
-void update_response_with_lua(const H2Server_Response* matched_response,
+void update_response_with_lua(boost::asio::io_service* io_service,
+                              const H2Server_Response* matched_response,
                               std::multimap<std::string, std::string>& req_headers,
                               std::string& req_payload,
                               std::map<std::string, std::string>& resp_headers,

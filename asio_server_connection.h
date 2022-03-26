@@ -86,16 +86,20 @@ public:
 
   /// Start the first asynchronous operation for the connection.
   void start() {
-    boost::system::error_code ec;
+    auto run_inside_own_io_context = [this]()
+    {
+        boost::system::error_code ec;
 
-    handler_ = std::make_shared<http2_handler>(
-        GET_IO_SERVICE(socket_), socket_.lowest_layer().remote_endpoint(ec),
-        [this]() { do_write(); }, mux_);
-    if (handler_->start() != 0) {
-      stop();
-      return;
-    }
-    do_read();
+        handler_ = std::make_shared<http2_handler>(
+            GET_IO_SERVICE(socket_), socket_.lowest_layer().remote_endpoint(ec),
+            [this]() { do_write(); }, mux_);
+        if (handler_->start() != 0) {
+          stop();
+          return;
+        }
+        do_read();
+    };
+    GET_IO_SERVICE(socket_).post(run_inside_own_io_context);
   }
 
   socket_type &socket() { return socket_; }
