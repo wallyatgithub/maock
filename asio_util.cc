@@ -123,8 +123,7 @@ void send_response_from_another_thread(boost::asio::io_service* target_io_servic
     target_io_service->post(call_send_response);
 }
 
-void update_response_with_lua(boost::asio::io_service* io_service,
-                              const H2Server_Response* matched_response,
+void update_response_with_lua(const H2Server_Response* matched_response,
                               std::multimap<std::string, std::string>& req_headers,
                               std::string& req_payload,
                               std::map<std::string, std::string>& resp_headers,
@@ -135,6 +134,7 @@ void update_response_with_lua(boost::asio::io_service* io_service,
 {
     matched_response->update_response_with_lua(req_headers, req_payload, resp_headers, resp_payload);
 
+    auto io_service = nghttp2::asio_http2::server::http2_handler::find_io_service(handler_id);
     if (!io_service)
     {
         return;
@@ -252,7 +252,7 @@ void asio_svr_entry(const std::string& config_in_json)
             static thread_local H2Server& h2server = get_H2Server_match_Instances()[thread_index];
             auto store_io_service_to_H2Server = [handler_id]()
             {
-                auto my_io_service = &nghttp2::asio_http2::server::http2_handler::find_http2_handler(handler_id)->io_service();
+                auto my_io_service = nghttp2::asio_http2::server::http2_handler::find_io_service(handler_id);
                 h2server.set_io_service(my_io_service);
                 return true;
             };
@@ -307,7 +307,6 @@ void asio_svr_entry(const std::string& config_in_json)
                         if (matched_response->lua_offload)
                         {
                             auto msg_update_routine = std::bind(update_response_with_lua,
-                                                                h2server.io_service,
                                                                 matched_response,
                                                                 msg.headers,
                                                                 req.unmutable_payload(),
@@ -444,18 +443,18 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
                                         respStats[req_index][resp_index].end(),
                                         0,
                                         [](uint64_t sum, const ResponseStatistics & val)
-                                        {
-                                            return sum + val.response_sent;
-                                        }
+                    {
+                        return sum + val.response_sent;
+                    }
                                        );
                     resp_throttled_till_now[req_index][resp_index] =
                         std::accumulate(respStats[req_index][resp_index].begin(),
                                         respStats[req_index][resp_index].end(),
                                         0,
                                         [](uint64_t sum, const ResponseStatistics & val)
-                                        {
-                                            return sum + val.response_throttled;
-                                        }
+                    {
+                        return sum + val.response_throttled;
+                    }
                                        );
                     total_resp_sent_till_now += resp_sent_till_now[req_index][resp_index];
                     total_resp_throttled_till_now += resp_throttled_till_now[req_index][resp_index];

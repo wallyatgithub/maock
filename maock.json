@@ -1,7 +1,7 @@
 {
   "address": "0.0.0.0",
   "port": 8081,
-  "threads": 8,
+  "threads": 4,
   "_private-key-file": "mtls/server.key",
   "_cert-file": "mtls/server.crt",
   "_caCert-file": "mtls/ca.crt",
@@ -64,7 +64,6 @@
               ]
             }
           ],
-	  "lua-offload": true,
           "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"201\"     return response_headers_to_send, response_payload_to_send end"
         },
         {
@@ -79,7 +78,7 @@
           },
           "additonalHeaders": [],
           "luaScript": "",
-          "lua-offload": true
+          "lua-offload": false
         }
       ]
     },
@@ -181,7 +180,7 @@
           },
           "additonalHeaders": [],
           "luaScript": "function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)     response_headers_to_send[\"old-status\"] = response_headers_to_send[\":status\"]     response_headers_to_send[\":status\"] = \"204\"     return response_headers_to_send, response_payload_to_send end",
-          "lua-offload": true
+          "lua-offload": false
         }
       ]
     },
@@ -215,7 +214,7 @@
           },
           "additonalHeaders": [],
           "luaScript": "function customize_response(response_header, response_payload, request_headers_to_send, request_payload_to_send)     request_headers_to_send[\"lua-version\"] = \"5.1\"     return request_headers_to_send, request_payload_to_send end",
-          "lua-offload": true
+          "lua-offload": false
         }
       ]
     }
