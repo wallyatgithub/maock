@@ -155,6 +155,7 @@ public:
     std::string cert_file;
     std::string ca_cert_file;
     bool enable_mTLS;
+    uint32_t max_concurrent_streams;
     std::vector<Schema_Service> service;
     explicit H2Server_Config_Schema()
     {
@@ -171,6 +172,7 @@ public:
         h->add_property("cert-file", &this->cert_file, staticjson::Flags::Optional);
         h->add_property("caCert-file", &this->ca_cert_file, staticjson::Flags::Optional);
         h->add_property("mTLS", &this->enable_mTLS, staticjson::Flags::Optional);
+        h->add_property("max-concurrent-streams", &this->max_concurrent_streams, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
     }
 };

@@ -1,4 +1,6 @@
 #include "asio_util.h"
+#include "maock_config.h"
+
 
 bool debug_mode = false;
 
@@ -193,6 +195,8 @@ void asio_svr_entry(const std::string& config_in_json)
             std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
                       << std::endl;
         }
+        maock_config.nghttp2_max_concurrent_streams = config_schema.max_concurrent_streams;
+
         H2Server h2server(config_schema); // sanity check to fail early
 
         if (config_schema.verbose)

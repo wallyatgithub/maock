@@ -36,6 +36,11 @@
         "default": false,
         "type":"boolean"
     },
+    "max-concurrent-streams":{
+      "description":"Value of SETTINGS_MAX_CONCURRENT_STREAMS in setting frame; default: 256",
+      "default": 256,
+      "type":"integer"
+    },
     "verbose":{
         "description": "true: print debug trace; false: no debug print",
         "default": false,
