@@ -7,6 +7,7 @@
   "_caCert-file": "mtls/ca.crt",
   "mTLS": false,
   "verbose": false,
+  "max-concurrent-streams": 256,
   "Service": [
     {
       "Request": {
