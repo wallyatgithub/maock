@@ -41,6 +41,16 @@
       "default": 256,
       "type":"integer"
     },
+    "socket-receive-buffer-size":{
+      "description":"socket receive buffer size in bytes; default: 4M",
+      "default": 4194304,
+      "type":"integer"
+    },
+    "socket-send-buffer-size":{
+      "description":"socket send buffer size in bytes; default: 4M",
+      "default": 4194304,
+      "type":"integer"
+    },
     "verbose":{
         "description": "true: print debug trace; false: no debug print",
         "default": false,

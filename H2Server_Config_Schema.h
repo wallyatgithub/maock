@@ -156,11 +156,15 @@ public:
     std::string ca_cert_file;
     bool enable_mTLS;
     uint32_t max_concurrent_streams;
+    uint64_t skt_recv_buffer_size;
+    uint64_t skt_send_buffer_size;
     std::vector<Schema_Service> service;
     explicit H2Server_Config_Schema()
     {
         enable_mTLS = false;
         verbose = false;
+        skt_recv_buffer_size = 4 * 1024 * 1024;
+        skt_send_buffer_size = 4 * 1024 * 1024;
     }
     void staticjson_init(staticjson::ObjectHandler* h)
     {
@@ -173,6 +177,8 @@ public:
         h->add_property("caCert-file", &this->ca_cert_file, staticjson::Flags::Optional);
         h->add_property("mTLS", &this->enable_mTLS, staticjson::Flags::Optional);
         h->add_property("max-concurrent-streams", &this->max_concurrent_streams, staticjson::Flags::Optional);
+        h->add_property("socket-receive-buffer-size", &this->skt_recv_buffer_size, staticjson::Flags::Optional);
+        h->add_property("socket-send-buffer-size", &this->skt_send_buffer_size, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
     }
 };
