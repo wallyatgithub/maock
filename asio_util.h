@@ -63,7 +63,7 @@ void update_response_with_lua(const H2Server_Response* matched_response,
                               int32_t stream_id,
                               uint64_t& matchedResponsesSent);
 
-void asio_svr_entry(const std::string& config_in_json);
+void asio_svr_entry(const std::string& config_in_json, H2Server_Config_Schema& config_schema);
 
 std::vector<H2Server>& get_H2Server_match_Instances();
 

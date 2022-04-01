@@ -39,7 +39,7 @@
 #include "asio_server_connection.h"
 #include "asio_common.h"
 #include "util.h"
-#include "maock_config.h"
+#include "H2Server_Config_Schema.h"
 
 namespace nghttp2 {
 namespace asio_http2 {
@@ -141,9 +141,9 @@ void server::start_accept(boost::asio::ssl::context &tls_context,
         if (!e) {
           new_connection->socket().lowest_layer().set_option(
               tcp::no_delay(true));
-          boost::asio::socket_base::receive_buffer_size rcv_option(maock_config.skt_recv_buffer_size);
+          boost::asio::socket_base::receive_buffer_size rcv_option(config_schema.skt_recv_buffer_size);
           new_connection->socket().lowest_layer().set_option(rcv_option);
-          boost::asio::socket_base::receive_buffer_size snd_option(maock_config.skt_send_buffer_size);
+          boost::asio::socket_base::receive_buffer_size snd_option(config_schema.skt_send_buffer_size);
           new_connection->socket().lowest_layer().set_option(snd_option);
           new_connection->start_tls_handshake_deadline();
           new_connection->socket().async_handshake(
@@ -182,9 +182,9 @@ void server::start_accept(tcp::acceptor &acceptor, serve_mux &mux) {
                                     const boost::system::error_code &e) {
         if (!e) {
           new_connection->socket().set_option(tcp::no_delay(true));
-          boost::asio::socket_base::receive_buffer_size rcv_option(maock_config.skt_recv_buffer_size);
+          boost::asio::socket_base::receive_buffer_size rcv_option(config_schema.skt_recv_buffer_size);
           new_connection->socket().set_option(rcv_option);
-          boost::asio::socket_base::receive_buffer_size snd_option(maock_config.skt_send_buffer_size);
+          boost::asio::socket_base::receive_buffer_size snd_option(config_schema.skt_send_buffer_size);
           new_connection->socket().set_option(snd_option);
           new_connection->start_read_deadline();
           new_connection->start();

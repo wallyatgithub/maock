@@ -34,7 +34,7 @@
 #include "http2.h"
 #include "util.h"
 #include "template.h"
-#include "maock_config.h"
+#include "H2Server_Config_Schema.h"
 
 namespace nghttp2 {
 
@@ -347,13 +347,45 @@ int http2_handler::start() {
   nghttp2_session_callbacks_set_on_frame_not_send_callback(
       callbacks, on_frame_not_send_callback);
 
-  rv = nghttp2_session_server_new(&session_, callbacks, this);
+  nghttp2_option* opt;
+
+  rv = nghttp2_option_new(&opt);
+  assert(rv == 0);
+  if (config_schema.encoder_header_table_size != NGHTTP2_DEFAULT_HEADER_TABLE_SIZE)
+  {
+      nghttp2_option_set_max_deflate_dynamic_table_size(
+          opt, config_schema.encoder_header_table_size);
+  }
+
+  rv = nghttp2_session_server_new2(&session_, callbacks, this, opt);
+
+  nghttp2_option_del(opt);
+
   if (rv != 0) {
     return -1;
   }
 
-  nghttp2_settings_entry ent{NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS, maock_config.nghttp2_max_concurrent_streams};
-  nghttp2_submit_settings(session_, NGHTTP2_FLAG_NONE, &ent, 1);
+  nghttp2_settings_entry ent{NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS, config_schema.max_concurrent_streams};
+
+  std::array<nghttp2_settings_entry, 3> iv;
+  size_t niv = 2;
+  iv[0].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
+  iv[0].value = (1 << config_schema.window_bits) - 1;
+
+  iv[1].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
+  iv[1].value = config_schema.max_concurrent_streams;
+
+  if (config_schema.header_table_size != NGHTTP2_DEFAULT_HEADER_TABLE_SIZE)
+  {
+      iv[niv].settings_id = NGHTTP2_SETTINGS_HEADER_TABLE_SIZE;
+      iv[niv].value = config_schema.header_table_size;
+      ++niv;
+  }
+
+  nghttp2_submit_settings(session_, NGHTTP2_FLAG_NONE, iv.data(), niv);
+
+  nghttp2_session_set_local_window_size(session_, NGHTTP2_FLAG_NONE, 0,
+                                        (1 << config_schema.connection_window_bits) - 1);
 
   return 0;
 }

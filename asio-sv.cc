@@ -60,6 +60,9 @@
 using namespace nghttp2::asio_http2;
 using namespace nghttp2::asio_http2::server;
 
+H2Server_Config_Schema config_schema;
+
+
 int main(int argc, char *argv[]) {
   if (argc < 2)
   {
@@ -69,6 +72,6 @@ int main(int argc, char *argv[]) {
   std::string config_file_name = argv[1];
   std::ifstream buffer(config_file_name);
   std::string jsonStr((std::istreambuf_iterator<char>(buffer)), std::istreambuf_iterator<char>());
-  asio_svr_entry(jsonStr);
+  asio_svr_entry(jsonStr, config_schema);
   return 0;
 }

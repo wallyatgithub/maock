@@ -1,8 +1,8 @@
 #include "asio_util.h"
-#include "maock_config.h"
 
 
 bool debug_mode = false;
+
 
 void close_stream(uint64_t& handler_id, int32_t stream_id)
 {
@@ -178,12 +178,11 @@ void init_H2Server_match_Instances(std::size_t number_of_instances, H2Server_Con
     static auto ret_code = init_func();
 }
 
-void asio_svr_entry(const std::string& config_in_json)
+void asio_svr_entry(const std::string& config_in_json, H2Server_Config_Schema& config_schema)
 {
     try
     {
         staticjson::ParseStatus result;
-        H2Server_Config_Schema config_schema;
         if (!staticjson::from_json_string(config_in_json.c_str(), &config_schema, &result))
         {
             std::cout << "error reading config file:" << result.description() << std::endl;
@@ -195,7 +194,6 @@ void asio_svr_entry(const std::string& config_in_json)
             std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
                       << std::endl;
         }
-        maock_config.nghttp2_max_concurrent_streams = config_schema.max_concurrent_streams;
 
         H2Server h2server(config_schema); // sanity check to fail early
 

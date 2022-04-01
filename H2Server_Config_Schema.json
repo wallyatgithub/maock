@@ -41,6 +41,30 @@
       "default": 256,
       "type":"integer"
     },
+    "header-table-size":
+    {
+      "description":"Specify decoder header table size.",
+      "default": 4096,
+      "type":"integer"
+    },
+    "encoder-header-table-size":
+    {
+      "description":"Specify encoder header table size. The decoder (server) specifies the maximum dynamic table size it accepts. Then the negotiated dynamic table size is the minimum of this option value and the value which server specified.",
+      "default": 4096,
+      "type":"integer"
+    },
+    "window-bits":
+    {
+      "description":"Sets the stream level initial window size to (2^window-bits)-1",
+      "default": 30,
+      "type":"integer"
+    },
+    "connection-window-bits":
+    {
+      "description":"Sets the connection level initial window size to (2^connection-window-bits)-1",
+      "default": 30,
+      "type":"integer"
+    },
     "socket-receive-buffer-size":{
       "description":"socket receive buffer size in bytes; default: 4M",
       "default": 4194304,

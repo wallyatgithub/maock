@@ -158,13 +158,22 @@ public:
     uint32_t max_concurrent_streams;
     uint64_t skt_recv_buffer_size;
     uint64_t skt_send_buffer_size;
+    uint64_t window_bits;
+    uint64_t connection_window_bits;
+    uint64_t header_table_size;
+    uint64_t encoder_header_table_size;
     std::vector<Schema_Service> service;
-    explicit H2Server_Config_Schema()
+    explicit H2Server_Config_Schema():
+        enable_mTLS(false),
+        verbose(false),
+        skt_recv_buffer_size(4 * 1024 * 1024),
+        skt_send_buffer_size(4 * 1024 * 1024),
+        max_concurrent_streams(256),
+        window_bits(30),
+        connection_window_bits(30),
+        header_table_size(4096),
+        encoder_header_table_size(4096)
     {
-        enable_mTLS = false;
-        verbose = false;
-        skt_recv_buffer_size = 4 * 1024 * 1024;
-        skt_send_buffer_size = 4 * 1024 * 1024;
     }
     void staticjson_init(staticjson::ObjectHandler* h)
     {
@@ -179,8 +188,14 @@ public:
         h->add_property("max-concurrent-streams", &this->max_concurrent_streams, staticjson::Flags::Optional);
         h->add_property("socket-receive-buffer-size", &this->skt_recv_buffer_size, staticjson::Flags::Optional);
         h->add_property("socket-send-buffer-size", &this->skt_send_buffer_size, staticjson::Flags::Optional);
+        h->add_property("header-table-size", &this->header_table_size, staticjson::Flags::Optional);
+        h->add_property("encoder-header-table-size", &this->encoder_header_table_size, staticjson::Flags::Optional);
+        h->add_property("window-bits", &this->window_bits, staticjson::Flags::Optional);
+        h->add_property("connection-window-bits", &this->connection_window_bits, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
     }
 };
+
+extern H2Server_Config_Schema config_schema;
 
 #endif

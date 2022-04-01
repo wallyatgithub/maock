@@ -153,7 +153,6 @@ set(ASIO_SV_SOURCES
   asio_server_request_handler.cc
   asio_server_tls_context.cc
   asio_util.cc
-  maock_config.cc
 )
 
 set(NGHTTP2_ASIO_SV_SOURCES
