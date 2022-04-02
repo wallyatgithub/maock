@@ -323,11 +323,12 @@ public:
             regex_present = true;
         }
     }
-    std::string getValue(const H2Server_Request_Message& msg) const
+    std::string getValue(H2Server_Request_Message& msg) const
     {
         std::string str;
         if (json_pointer.size())
         {
+            msg.decode_json_if_not_yet();
             str = getValueFromJsonPtr(msg.json_payload, json_pointer);
         }
         else if (header_name.size()&&msg.headers.count(header_name))
@@ -596,7 +597,7 @@ public:
         return retCode;
     }
 
-    std::string produce_payload(const H2Server_Request_Message& msg) const
+    std::string produce_payload(H2Server_Request_Message& msg) const
     {
         std::string payload;
         for (size_t index = 0; index < tokenizedPayload.size(); index++)
@@ -610,7 +611,7 @@ public:
         return payload;
     }
 
-    std::pair<std::string, std::string> produce_header(const H2Server_Response_Header& header_with_var, const H2Server_Request_Message& msg) const
+    std::pair<std::string, std::string> produce_header(const H2Server_Response_Header& header_with_var, H2Server_Request_Message& msg) const
     {
         std::string header_with_value;
         for (size_t index = 0; index < header_with_var.tokenizedHeader.size(); index++)
@@ -635,7 +636,7 @@ public:
         return std::make_pair<std::string, std::string>(std::move(header_name), std::move(header_value));
     }
 
-    std::map<std::string, std::string> produce_headers(const H2Server_Request_Message& msg) const
+    std::map<std::string, std::string> produce_headers(H2Server_Request_Message& msg) const
     {
         std::map<std::string, std::string> headers;
 

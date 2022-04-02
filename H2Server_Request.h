@@ -141,6 +141,7 @@ public:
             }
             else
             {
+                request.decode_json_if_not_yet();
                 matched = match(request.json_payload);
             }
             request.match_result[unique_id] = matched;
