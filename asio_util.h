@@ -31,6 +31,7 @@ struct ResponseStatistics
 
 void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
                             std::vector<std::vector<std::vector<ResponseStatistics>>>& respStats,
+                            std::vector<uint64_t>& totalUnMatchedResponses,
                             H2Server_Config_Schema& config_schema);
 
 void close_stream(uint64_t& handler_id, int32_t stream_id);
@@ -59,6 +60,7 @@ void update_response_with_lua(const H2Server_Response* matched_response,
                               std::string& req_payload,
                               std::map<std::string, std::string>& resp_headers,
                               std::string& resp_payload,
+                              boost::asio::io_service* ios,
                               uint64_t handler_id,
                               int32_t stream_id,
                               uint64_t& matchedResponsesSent);
