@@ -166,7 +166,8 @@
             "input": "POST"
           }
         ],
-        "payload": []
+        "payload": [
+        ]
       },
       "Responses": [
         {
@@ -200,7 +201,8 @@
             "input": "PATCH"
           }
         ],
-        "payload": []
+        "payload": [
+        ]
       },
       "Responses": [
         {

@@ -283,9 +283,9 @@ void asio_svr_entry(const std::string& config_in_json, H2Server_Config_Schema& c
             if (matched_request_index > -1)
             {
                 req_index = matched_request_index;
-                if (matched_service->first.get_request_processor())
+                if (matched_service->second.get_request_processor())
                 {
-                    matched_service->first.get_request_processor()(h2server.io_service,
+                    matched_service->second.get_request_processor()(h2server.io_service,
                                                                    handler_id,
                                                                    stream_id,
                                                                    msg.headers,
@@ -524,3 +524,19 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
     std::thread stats_thread(stats_func);
     stats_thread.detach();
 }
+
+
+void install_request_callback(const std::string& name, Request_Processor request_processor)
+{
+    for (auto& h2server: get_H2Server_match_Instances())
+    {
+        for (auto& service: h2server.services)
+        {
+            if (service.first.name == name)
+            {
+                service.second.set_request_processor(request_processor);
+            }
+        }
+    }
+}
+

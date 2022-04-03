@@ -71,4 +71,6 @@ std::vector<H2Server>& get_H2Server_match_Instances();
 
 void init_H2Server_match_Instances(std::size_t number_of_instances, const std::string& config_schema);
 
+void install_request_callback(const std::string& name, Request_Processor request_processor);
+
 #endif
