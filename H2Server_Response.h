@@ -489,7 +489,7 @@ public:
         response_index = index;
     }
 
-    bool update_response_with_lua(std::multimap<std::string, std::string> req_headers,
+    bool update_response_with_lua(const std::multimap<std::string, std::string>& req_headers,
                                             const std::string& req_body,
                                             std::map<std::string, std::string>& resp_headers,
                                             std::string& response_body) const
