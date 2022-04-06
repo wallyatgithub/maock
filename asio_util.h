@@ -76,4 +76,6 @@ void init_H2Server_match_Instances(std::size_t number_of_instances, const std::s
 
 void install_request_callback(const std::string& name, Request_Processor request_processor);
 
+void start_server(const std::string& config_file_name, bool start_stats_thread);
+
 #endif
