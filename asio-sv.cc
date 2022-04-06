@@ -62,6 +62,54 @@ using namespace nghttp2::asio_http2::server;
 
 H2Server_Config_Schema config_schema;
 
+void start_server(const std::string& config_file_name, bool start_stats_thread)
+{
+    std::ifstream buffer(config_file_name);
+    std::string jsonStr((std::istreambuf_iterator<char>(buffer)), std::istreambuf_iterator<char>());
+
+    staticjson::ParseStatus result;
+    if (!staticjson::from_json_string(jsonStr.c_str(), &config_schema, &result))
+    {
+        std::cout << "error reading config file:" << result.description() << std::endl;
+        exit(1);
+    }
+
+    if (config_schema.verbose)
+    {
+        std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
+                  << std::endl;
+        debug_mode = true;
+    }
+
+    H2Server h2server(config_schema); // sanity check to fail early
+
+    std::size_t num_threads = config_schema.threads;
+    if (!num_threads)
+    {
+        num_threads = std::thread::hardware_concurrency();
+    }
+    if (!num_threads)
+    {
+        num_threads = 1;
+    }
+    config_schema.threads = num_threads;
+
+    static std::vector<uint64_t> totalReqsReceived(num_threads, 0);
+    static std::vector<uint64_t> totalUnMatchedResponses(num_threads, 0);
+    static std::vector<std::vector<std::vector<ResponseStatistics>>> respStats;
+    for (size_t req_idx = 0; req_idx < config_schema.service.size(); req_idx++)
+    {
+        std::vector<std::vector<ResponseStatistics>> perServiceStats(config_schema.service[req_idx].responses.size(),
+                                                                     std::vector<ResponseStatistics>(num_threads));
+        respStats.push_back(perServiceStats);
+    }
+    if (start_stats_thread)
+    {
+        start_statistic_thread(totalReqsReceived, respStats, totalUnMatchedResponses, config_schema);
+    }
+
+    asio_svr_entry(config_schema, totalReqsReceived, totalUnMatchedResponses, respStats);
+}
 
 int main(int argc, char *argv[]) {
   if (argc < 2)
@@ -70,49 +118,7 @@ int main(int argc, char *argv[]) {
       return 1;
   }
   std::string config_file_name = argv[1];
-  std::ifstream buffer(config_file_name);
-  std::string jsonStr((std::istreambuf_iterator<char>(buffer)), std::istreambuf_iterator<char>());
 
-  staticjson::ParseStatus result;
-  if (!staticjson::from_json_string(jsonStr.c_str(), &config_schema, &result))
-  {
-      std::cout << "error reading config file:" << result.description() << std::endl;
-      exit(1);
-  }
-
-  if (config_schema.verbose)
-  {
-      std::cerr << "Configuration dump:" << std::endl << staticjson::to_pretty_json_string(config_schema)
-                << std::endl;
-      debug_mode = true;
-  }
-
-  H2Server h2server(config_schema); // sanity check to fail early
-
-  std::size_t num_threads = config_schema.threads;
-  if (!num_threads)
-  {
-      num_threads = std::thread::hardware_concurrency();
-  }
-  if (!num_threads)
-  {
-      num_threads = 1;
-  }
-  config_schema.threads = num_threads;
-
-  static std::vector<uint64_t> totalReqsReceived(num_threads, 0);
-  static std::vector<uint64_t> totalUnMatchedResponses(num_threads, 0);
-  static std::vector<std::vector<std::vector<ResponseStatistics>>> respStats;
-  for (size_t req_idx = 0; req_idx < config_schema.service.size(); req_idx++)
-  {
-      std::vector<std::vector<ResponseStatistics>> perServiceStats(config_schema.service[req_idx].responses.size(),
-                                                                   std::vector<ResponseStatistics>(num_threads));
-      respStats.push_back(perServiceStats);
-  }
-
-  start_statistic_thread(totalReqsReceived, respStats, totalUnMatchedResponses, config_schema);
-
-  asio_svr_entry(config_schema, totalReqsReceived, totalUnMatchedResponses, respStats);
-
+  start_server(config_file_name, true);
   return 0;
 }
