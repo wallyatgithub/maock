@@ -22,7 +22,6 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-using namespace rapidjson;
 
 const std::string extended_json_pointer_indicator = "/~#";
 

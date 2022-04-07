@@ -15,9 +15,6 @@
 #include "H2Server_Response.h"
 #include "H2Server_Request_Message.h"
 
-
-using namespace rapidjson;
-
 class Match_Rule
 {
 public:
