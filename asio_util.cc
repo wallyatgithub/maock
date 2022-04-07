@@ -196,7 +196,7 @@ void asio_svr_entry(const H2Server_Config_Schema& config_schema,
 
         init_H2Server_match_Instances(num_threads, config_schema);
 
-        nghttp2::asio_http2::server::http2 server;
+        nghttp2::asio_http2::server::http2 server(config_schema);
 
         std::atomic<uint64_t> threadIndex(0);
 
