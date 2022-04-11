@@ -72,7 +72,7 @@ void asio_svr_entry(const H2Server_Config_Schema& config_schema,
 
 std::vector<H2Server>& get_H2Server_match_Instances(std::thread::id thread_id);
 
-std::map<std::thread::id, nghttp2::asio_http2::server::http2*>::iterator get_h2_server_instance(std::thread::id thread_id);
+std::map<std::string, nghttp2::asio_http2::server::http2*>::iterator get_h2_server_instance(const std::string& thread_id);
 
 void init_H2Server_match_Instances(std::size_t number_of_instances, const std::string& config_schema);
 
@@ -81,6 +81,6 @@ void install_request_callback(std::thread::id thread_id, const std::string& name
 /* this will block */
 void start_server(const std::string& config_file_name, bool start_stats_thread);
 
-void stop_server(std::thread::id thread_id);
+void stop_server(const std::string& thread_id);
 
 #endif

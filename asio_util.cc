@@ -195,12 +195,14 @@ void asio_svr_entry(const H2Server_Config_Schema& config_schema,
         std::size_t num_threads = config_schema.threads;
 
         auto bootstrap_thread_id = std::this_thread::get_id();
+        std::stringstream ss;
+        ss << std::hash<std::thread::id>()(bootstrap_thread_id);
 
         init_H2Server_match_Instances(num_threads, config_schema);
 
         nghttp2::asio_http2::server::http2 server(config_schema);
 
-        get_h2_server_instance(bootstrap_thread_id)->second = &server;
+        get_h2_server_instance(ss.str())->second = &server;
 
         std::atomic<uint64_t> threadIndex(0);
 
@@ -563,16 +565,19 @@ void install_request_callback(std::thread::id thread_id, const std::string& name
     }
 }
 
-std::map<std::thread::id, nghttp2::asio_http2::server::http2*>::iterator get_h2_server_instance(std::thread::id thread_id)
+std::map<std::string, nghttp2::asio_http2::server::http2*>::iterator get_h2_server_instance(const std::string& thread_id)
 {
-    static std::map<std::thread::id, nghttp2::asio_http2::server::http2*> h2_servers;
+    static std::map<std::string, nghttp2::asio_http2::server::http2*> h2_servers;
     static std::mutex map_mutex;
-    std::lock_guard<std::mutex> guard(map_mutex);
-    auto dummy = h2_servers[thread_id];
+    if (h2_servers.count(thread_id) == 0)
+    {
+        std::lock_guard<std::mutex> guard(map_mutex);
+        auto dummy = h2_servers[thread_id];
+    }
     return h2_servers.find(thread_id);
 }
 
-void stop_server(std::thread::id thread_id)
+void stop_server(const std::string& thread_id)
 {
     auto server = get_h2_server_instance(thread_id);
     if (server->second)
