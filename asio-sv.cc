@@ -70,6 +70,6 @@ int main(int argc, char *argv[]) {
   }
   std::string config_file_name = argv[1];
 
-  start_server(config_file_name, true);
+  start_server(config_file_name, true, [](){;});
   return 0;
 }
