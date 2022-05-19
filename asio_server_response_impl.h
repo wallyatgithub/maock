@@ -48,6 +48,7 @@ public:
   response_impl();
   void write_head(unsigned int status_code, header_map h = header_map{});
   void end(std::string data = "");
+  void send_data_no_eos(std::string data);
   void end(generator_cb cb);
   void write_trailer(header_map h);
   void on_close(close_cb cb);
@@ -64,6 +65,7 @@ public:
 
   unsigned int status_code() const;
   const header_map &header() const;
+  const header_map &trailers() const;
   void pushed(bool f);
   void push_promise_sent();
   void stream(class stream *s);
@@ -74,6 +76,7 @@ public:
 private:
   class stream *strm_;
   header_map header_;
+  header_map trailers_;
   generator_cb generator_cb_;
   close_cb close_cb_;
   unsigned int status_code_;

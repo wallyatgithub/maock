@@ -41,8 +41,9 @@ size_t get_req_name_max_size(const H2Server_Config_Schema& config_schema);
 size_t get_resp_name_max_size(const H2Server_Config_Schema& config_schema);
 
 void send_response(uint32_t status_code,
-                   const std::map<std::string, std::string>& resp_headers,
-                   const std::string& resp_payload,
+                   std::map<std::string, std::string>& resp_headers,
+                   std::string& resp_payload,
+                   std::map<std::string, std::string>& trailer_headers,
                    uint64_t handler_id,
                    int32_t stream_id,
                    uint64_t& matchedResponsesSent
@@ -52,13 +53,15 @@ void send_response_from_another_thread(boost::asio::io_service* target_io_servic
                                        uint64_t handler_id,
                                        int32_t stream_id,
                                        std::map<std::string, std::string>& resp_headers,
-                                       std::string& resp_payload
+                                       std::string& resp_payload,
+                                       std::map<std::string, std::string>& trailer_headers
                                       );
 
 void update_response_with_lua(const H2Server_Response* matched_response,
                               std::multimap<std::string, std::string>& req_headers,
                               std::string& req_payload,
                               std::map<std::string, std::string>& resp_headers,
+                              std::map<std::string, std::string>& trailers,
                               std::string& resp_payload,
                               boost::asio::io_service* ios,
                               uint64_t handler_id,
