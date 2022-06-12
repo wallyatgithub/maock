@@ -47,6 +47,8 @@
 #include <nghttp2/asio_http2_server.h>
 
 #include "asio_server_http2_handler.h"
+#include "asio_server_http1_handler.h"
+
 #include "asio_server_serve_mux.h"
 #include "util.h"
 #include "template.h"
@@ -83,18 +85,31 @@ public:
         tls_handshake_timeout_(tls_handshake_timeout),
         read_timeout_(read_timeout),
         writing_(false),
+        buffer_(8 * 1024, 0),
+        outbuf_(64 * 1024, 0),
         stopped_(false) {}
 
   /// Start the first asynchronous operation for the connection.
-  void start(const H2Server_Config_Schema& conf) {
-    auto start_in_own_thread = [this, &conf]()
+  void start(const H2Server_Config_Schema& conf, NO_TLS_PROTO proto) {
+    auto start_in_own_thread = [this, &conf, proto]()
     {
         boost::system::error_code ec;
         auto self = this->shared_from_this();
 
-        handler_ = std::make_shared<http2_handler>(
-            GET_IO_SERVICE(socket_), socket_.lowest_layer().remote_endpoint(ec),
-            [this, self]() { do_write(); }, mux_, conf);
+        if (proto == HTTP2)
+        {
+            handler_ = std::make_shared<http2_handler>(
+                GET_IO_SERVICE(socket_), socket_.lowest_layer().remote_endpoint(ec),
+                [this, self]() { do_write(); }, mux_, conf);
+
+        }
+        else
+        {
+            handler_ = std::make_shared<http1_handler>(
+                GET_IO_SERVICE(socket_), socket_.lowest_layer().remote_endpoint(ec),
+                [this, self]() { do_write(); }, mux_, conf);
+        }
+
         if (handler_->start() != 0) {
           stop();
           return;
@@ -242,12 +257,12 @@ private:
 
   serve_mux &mux_;
 
-  std::shared_ptr<http2_handler> handler_;
+  std::shared_ptr<base_handler> handler_;
 
   /// Buffer for incoming data.
-  boost::array<uint8_t, 8_k> buffer_;
+  std::vector<uint8_t> buffer_;
 
-  boost::array<uint8_t, 64_k> outbuf_;
+  std::vector<uint8_t> outbuf_;
 
   boost::asio::deadline_timer deadline_;
   boost::posix_time::time_duration tls_handshake_timeout_;

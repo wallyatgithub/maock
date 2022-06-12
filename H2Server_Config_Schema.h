@@ -144,6 +144,12 @@ public:
     }
 };
 
+enum NO_TLS_PROTO
+{
+    HTTP1_1 = 0,
+    HTTP2
+};
+
 class H2Server_Config_Schema
 {
 public:
@@ -162,6 +168,8 @@ public:
     uint64_t connection_window_bits;
     uint64_t header_table_size;
     uint64_t encoder_header_table_size;
+    std::string no_tls_proto;
+    NO_TLS_PROTO no_tls_proto_enum;
     std::vector<Schema_Service> service;
     explicit H2Server_Config_Schema():
         enable_mTLS(false),
@@ -172,7 +180,9 @@ public:
         window_bits(30),
         connection_window_bits(30),
         header_table_size(4096),
-        encoder_header_table_size(4096)
+        encoder_header_table_size(4096),
+        no_tls_proto("h2c"),
+        no_tls_proto_enum(HTTP2)
     {
     }
     void staticjson_init(staticjson::ObjectHandler* h)
@@ -192,7 +202,19 @@ public:
         h->add_property("encoder-header-table-size", &this->encoder_header_table_size, staticjson::Flags::Optional);
         h->add_property("window-bits", &this->window_bits, staticjson::Flags::Optional);
         h->add_property("connection-window-bits", &this->connection_window_bits, staticjson::Flags::Optional);
+        h->add_property("no-tls-proto", &this->no_tls_proto, staticjson::Flags::Optional);
         h->add_property("Service", &this->service);
+    }
+    void config_post_process()
+    {
+        if (no_tls_proto == "h2c")
+        {
+            no_tls_proto_enum = HTTP2;
+        }
+        else
+        {
+            no_tls_proto_enum = HTTP1_1;
+        }
     }
 };
 
