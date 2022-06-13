@@ -22,10 +22,10 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#include "asio_server_response_impl.h"
+#include "asio_server_response.h"
 
 #include "asio_server_stream.h"
-#include "asio_server_request_impl.h"
+#include "asio_server_request.h"
 #include "asio_server_base_handler.h"
 #include "asio_common.h"
 
@@ -35,7 +35,7 @@ namespace nghttp2 {
 namespace asio_http2 {
 namespace server {
 
-response_impl::response_impl()
+asio_server_response::asio_server_response()
     : strm_(nullptr),
       generator_cb_(deferred_generator()),
       status_code_(200),
@@ -43,9 +43,9 @@ response_impl::response_impl()
       pushed_(false),
       push_promise_sent_(false) {}
 
-unsigned int response_impl::status_code() const { return status_code_; }
+unsigned int asio_server_response::status_code() const { return status_code_; }
 
-void response_impl::write_head(unsigned int status_code, header_map h) {
+void asio_server_response::write_head(unsigned int status_code, header_map h) {
   if (state_ != response_state::INITIAL) {
     return;
   }
@@ -62,15 +62,17 @@ void response_impl::write_head(unsigned int status_code, header_map h) {
   start_response();
 }
 
-void response_impl::end(std::string data) {
+void asio_server_response::end(std::string data) {
+  payload_size_ = data.size();
   end(string_generator(std::move(data)));
 }
-void response_impl::send_data_no_eos(std::string data)
+void asio_server_response::send_data_no_eos(std::string data)
 {
+    payload_size_ = data.size();
     end(string_generator(std::move(data)));
 }
 
-void response_impl::end(generator_cb cb) {
+void asio_server_response::end(generator_cb cb) {
   if (state_ == response_state::BODY_STARTED) {
     return;
   }
@@ -88,7 +90,7 @@ void response_impl::end(generator_cb cb) {
   state_ = response_state::BODY_STARTED;
 }
 
-void response_impl::write_trailer(header_map h)
+void asio_server_response::write_trailer(header_map h)
 {
     trailers_ = std::move(h);
     if (!generator_cb_)
@@ -97,7 +99,7 @@ void response_impl::write_trailer(header_map h)
     }
 }
 
-void response_impl::send_trailer()
+void asio_server_response::send_trailer()
 {
     if (trailers_.size())
     {
@@ -107,10 +109,10 @@ void response_impl::send_trailer()
 }
 
 
-void response_impl::start_response() {
+void asio_server_response::start_response() {
   auto handler = strm_->handler();
 
-  auto &req = strm_->request().impl();
+  auto &req = strm_->request();
 
   if (!::nghttp2::http2::expect_response_body(req.method(), status_code_)) {
     state_ = response_state::BODY_STARTED;
@@ -122,38 +124,43 @@ void response_impl::start_response() {
   }
 }
 
-void response_impl::on_close(close_cb cb) { close_cb_ = std::move(cb); }
+size_t asio_server_response::get_payload_size()
+{
+    return payload_size_;
+}
 
-void response_impl::call_on_close(uint32_t error_code) {
+void asio_server_response::on_close(close_cb cb) { close_cb_ = std::move(cb); }
+
+void asio_server_response::call_on_close(uint32_t error_code) {
   if (close_cb_) {
     close_cb_(error_code);
   }
 }
 
-void response_impl::cancel(uint32_t error_code) {
+void asio_server_response::cancel(uint32_t error_code) {
   auto handler = strm_->handler();
   handler->stream_error(strm_->get_stream_id(), error_code);
 }
 
-response *response_impl::push(boost::system::error_code &ec, std::string method,
+asio_server_response* asio_server_response::push(boost::system::error_code &ec, std::string method,
                               std::string raw_path_query, header_map h) const {
   auto handler = strm_->handler();
   return handler->push_promise(ec, *strm_, std::move(method),
                                std::move(raw_path_query), std::move(h));
 }
 
-void response_impl::resume() {
+void asio_server_response::resume() {
   auto handler = strm_->handler();
   handler->resume(*strm_);
 }
 
-boost::asio::io_service &response_impl::io_service() {
+boost::asio::io_service &asio_server_response::io_service() {
   return strm_->handler()->io_service();
 }
 
-void response_impl::pushed(bool f) { pushed_ = f; }
+void asio_server_response::pushed(bool f) { pushed_ = f; }
 
-void response_impl::push_promise_sent() {
+void asio_server_response::push_promise_sent() {
   if (push_promise_sent_) {
     return;
   }
@@ -164,14 +171,14 @@ void response_impl::push_promise_sent() {
   start_response();
 }
 
-const header_map &response_impl::header() const { return header_; }
+const header_map &asio_server_response::header() const { return header_; }
 
-const header_map &response_impl::trailers() const { return trailers_; }
+const header_map &asio_server_response::trailers() const { return trailers_; }
 
-void response_impl::stream(class stream *s) { strm_ = s; }
+void asio_server_response::stream(class asio_server_stream *s) { strm_ = s; }
 
 generator_cb::result_type
-response_impl::call_read(uint8_t *data, std::size_t len, uint32_t *data_flags)
+asio_server_response::call_read(uint8_t *data, std::size_t len, uint32_t *data_flags)
 {
     auto retCode = 0;
     if (generator_cb_)
