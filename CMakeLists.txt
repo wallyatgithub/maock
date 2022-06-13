@@ -140,8 +140,8 @@ include_directories(
 set(ASIO_SV_SOURCES
   asio_common.cc
   asio_io_service_pool.cc
-  asio_server_http2.cc
-  asio_server_http2_impl.cc
+  asio_httpx_server.cc
+  asio_httpx_server_impl.cc
   asio_server.cc
   asio_server_http2_handler.cc
   asio_server_request.cc
