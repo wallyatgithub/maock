@@ -2,6 +2,7 @@
 #define H2SERVER_CONFIG_SCHEMA_H
 
 #include <iostream>
+#include <fstream>
 
 #include "staticjson/document.hpp"
 #include "staticjson/staticjson.hpp"
@@ -214,6 +215,21 @@ public:
         else
         {
             no_tls_proto_enum = HTTP1_1;
+        }
+        for (auto& s: service)
+        {
+            for (auto& r: s.responses)
+            {
+                if (r.payload.msg_payload.size())
+                {
+                    std::ifstream f(r.payload.msg_payload);
+                    if (f.good())
+                    {
+                        std::string dest((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+                        r.payload.msg_payload = dest;
+                    }
+                }
+            }
         }
     }
 };

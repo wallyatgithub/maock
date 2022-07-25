@@ -195,7 +195,7 @@
                   "type":"object",
                   "properties":{
                     "msg-payload": {
-                      "description": "The actual message payload. The payload can optionally contain a placeholder (name specified below) that has multiple occurrences. For example: {'name': '$VAR', 'location': '$VAR', 'ID', '$VAR'}, here, $VAR is the placeholder. Each occurrence of $VAR would be replaced by an actual string as instructed by arguments field, in order of occurrance; no need to manually add Content-Length header in additonalHeaders field, as it would be generated based on the actual final length; however, Content-Type header should be provided by user manually in additonalHeaders field.",
+                      "description": "The actual message payload (or the path of a file, whose content is the actual payload). The payload can optionally contain a placeholder (name specified below) that has multiple occurrences. For example: {'name': '$VAR', 'location': '$VAR', 'ID', '$VAR'}, here, $VAR is the placeholder. Each occurrence of $VAR would be replaced by an actual string as instructed by arguments field, in order of occurrance; no need to manually add Content-Length header in additonalHeaders field, as it would be generated based on the actual final length; however, Content-Type header should be provided by user manually in additonalHeaders field.",
                       "type":"string"
                     },
                     "placeholder": {
