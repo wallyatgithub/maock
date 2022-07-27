@@ -5,6 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (DEFINED ALPINE_STATIC)
      add_link_options(-static)
+     find_library(MIMALLOC_LIBRARY NAMES libmimalloc.a)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -115,7 +116,7 @@ configure_file(cmakeconfig.h.in config.h)
 
 set(APP_LIBRARIES)
 find_package(Threads)
-list(APPEND APP_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+list(APPEND APP_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${MIMALLOC_LIBRARY})
 
 add_subdirectory(third-party)
 
