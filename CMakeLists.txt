@@ -4,7 +4,8 @@ project(maock VERSION 0.1)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if (DEFINED ALPINE_STATIC)
-     add_link_options(-static -lmimalloc)
+     add_link_options(-static)
+     set(MIMALLOC_LIB mimalloc)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -190,6 +191,7 @@ ${NGHTTP2_LIBRARY}
 ${OPENSSL_LIBRARIES}
 ${APP_LIBRARIES}
 ${LUA_LIBRARIES}
+${MIMALLOC_LIB}
 )
 
 add_executable(maock asio-sv.cc $<TARGET_OBJECTS:llhttp>
@@ -205,4 +207,6 @@ ${NGHTTP2_LIBRARY}
 ${OPENSSL_LIBRARIES}
 ${Boost_LIBRARIES}
 ${APP_LIBRARIES}
+${LUA_LIBRARIES}
+${MIMALLOC_LIB}
 )
