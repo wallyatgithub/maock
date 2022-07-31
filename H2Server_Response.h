@@ -625,14 +625,9 @@ public:
         std::string header_with_value;
         for (size_t index = 0; index < header_with_var.tokenizedHeader.size(); index++)
         {
-            if (debug_mode)
-            {
-                std::cout<<"token: "<<header_with_var.tokenizedHeader[index]<<std::endl;
-            }
             header_with_value.append(header_with_var.tokenizedHeader[index]);
             if (index < header_with_var.header_arguments.size())
             {
-                std::cout<<"variable: "<<header_with_var.header_arguments[index].getValue(msg)<<std::endl;
                 header_with_value.append(header_with_var.header_arguments[index].getValue(msg));
             }
         }
