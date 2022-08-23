@@ -2,9 +2,9 @@
 
 *Read this in other languages: [简体中文](README.zh-cn.md).*
 
-# Maock is an http2 mock server
+# Maock is an http1 / http2 mock server
   
-  Maock was forked from asio-sv of nghttp2, with configuration interface added, to enable it to mock many http2 services with simple configuration, while for most cases, it does not require any programing skills from the end user.
+  Maock was forked from asio-sv of nghttp2, with configuration interface added, to enable it to mock many http1 / http2 services with simple configuration, while for most cases, it does not require any programing skills from the end user.
  
   Maock supports programing interface as well, to further customized the response message with Lua.
   
