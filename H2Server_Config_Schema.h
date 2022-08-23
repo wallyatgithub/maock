@@ -229,6 +229,15 @@ public:
                         r.payload.msg_payload = dest;
                     }
                 }
+                if (r.luaScript.size())
+                {
+                    std::ifstream f(r.luaScript);
+                    if (f.good())
+                    {
+                        std::string dest((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+                        r.luaScript = dest;
+                    }
+                }
             }
         }
     }
