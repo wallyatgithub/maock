@@ -2,9 +2,9 @@
 
 *Read this in other languages: [English](README.md).*
 
-# Maock 是一个http2 mock server
+# Maock 是一个http1.x / http2 mock server
   
-  Maock从nghttp2的asio-sv fork而来，并加入了可配置的接口。
+  Maock从nghttp2的asio-sv fork而来，并加入了可配置的接口，以及http1.x的支持
   
   通过不同的配置文件，Maock能够模拟多种http2的服务，而不需要使用者具备编程技能。
   
