@@ -11,6 +11,7 @@
 #include <sstream>
 #include <fstream>
 #include <streambuf>
+#include <sstream>
 #include <map>
 #include <memory>
 #include "H2Server_Config_Schema.h"
