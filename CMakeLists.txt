@@ -154,6 +154,19 @@ set(ASIO_SV_SOURCES
   asio_server_base_handler.cc
   asio_server_http1_handler.cc
   asio_util.cc
+  common_lua.cc
+)
+
+set(THIRD_PARTY_LUA_MOD_SOURCE
+    third-party/lua-rapidJson/Document.cpp
+    third-party/lua-rapidJson/Schema.cpp
+    third-party/lua-rapidJson/Userdata.hpp
+    third-party/lua-rapidJson/file.hpp
+    third-party/lua-rapidJson/luax.hpp
+    third-party/lua-rapidJson/rapidjson.cpp
+    third-party/lua-rapidJson/values.cpp
+    third-party/lua-rapidJson/values.hpp
+    pb.c
 )
 
 set(NGHTTP2_ASIO_SV_SOURCES
@@ -162,6 +175,7 @@ set(NGHTTP2_ASIO_SV_SOURCES
   tls.cc
   timegm.c
   ${ASIO_SV_SOURCES}
+  ${THIRD_PARTY_LUA_MOD_SOURCE}
 )
 
 add_library(nghttp2_asio_sv OBJECT

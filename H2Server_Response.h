@@ -21,6 +21,7 @@ extern "C" {
 #include "lualib.h"
 #include "lauxlib.h"
 }
+#include "common_lua.h"
 
 const std::string extended_json_pointer_indicator = "/~#";
 
@@ -523,6 +524,7 @@ public:
         {
             luaState = std::shared_ptr<lua_State>(luaL_newstate(), &lua_close);
             luaL_openlibs(luaState.get());
+            init_new_lua_state_with_common_apis(luaState.get());
             luaL_dostring(luaState.get(), resp.luaScript.c_str());
             lua_getglobal(luaState.get(), customize_response.c_str());
             if (!lua_isfunction(luaState.get(), -1))
