@@ -102,6 +102,18 @@
         return response_headers_to_send, response_payload_to_send
     end
 
+    maock has some third party modules builtin, which are directly made available with the need of "require".
+    
+    Currently these modules are made available:
+    
+    protobuf modules: https://github.com/starwing/lua-protobuf/blob/master/README.md
+    
+    rapidjson modules: https://github.com/xpol/lua-rapidjson/blob/master/API.md
+    
+    Other lua modules *written in Lua* can also be loaded with "require", as long as the respective .lua file can be found in current directory or LUA_PATH.
+    
+    Currently, .so lua modules cannot be loaded with "require", but they can be builtin and made available if necessary, like rapidjson.
+
   After finish editing the form, copy the data of the left edit box under the "Output" tab, and save into a file, such as maock.json
   
   Then start Maock with maock.json as the input: 

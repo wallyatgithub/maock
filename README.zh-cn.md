@@ -98,6 +98,17 @@
         return response_headers_to_send, response_payload_to_send
     end
     
+    maock内建了一个第三方的Lua module，这几个module不需要用require加载，可以直接使用。
+    
+    这些第三方的module包括:
+    
+    protobuf modules: https://github.com/starwing/lua-protobuf/blob/master/README.md
+    
+    rapidjson modules: https://github.com/xpol/lua-rapidjson/blob/master/API.md
+    
+    其它用lua编写的第三方module可以用require的方式随时加载，前提是，对应的.lua文件能在当前目录或者LUA_PATH指定的路径找到。
+    
+    目前，不支持通过require的方式动态加载so格式的module。如有需要，这些模块可以通过像rapidjson一样，以内建的方式支持。
   
   编辑表单结束之后，从output标签页的编辑框中复制出生成的Json文本，并存入一个文件，比如maock.json
   
