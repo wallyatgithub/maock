@@ -98,7 +98,28 @@
         return response_headers_to_send, response_payload_to_send
     end
     
-    maock内建了一个第三方的Lua module，这几个module不需要用require加载，可以直接使用。
+    maock 内建了一些简单的工具函数，可以在lua脚本中调用：
+
+    **store_value**
+
+    store_value接受两个参数，都是字符串，第一个参数是key，第二个是value，函数会将key-value这一对值存到进程全局的map中。注意，因为是进程全局可见的map，不可避免的会用mutex来保护，虽然maock已经尽量避免不同线程同时访问同一map，以减少mutex所带来的并发性的限制，但依然不可完全避免，建议只有确实需要的时候（确实需要跨线程同步数据），才考虑使用这一特性
+
+    **get_value**
+
+    仅一个参数key，字符串格式；它会从全局的表查找key，如果有对应的value（字符串格式），则返回value，否则返回nil。注意事项同上。
+
+    **delete_value**
+
+    仅一个参数key，字符串格式；它会从全局的表查找key，如果有对应的value（字符串格式），则返回value，并且把该key-value对从全局的map删掉，否则返回nil。注意事项同上。
+
+    **generate_uuid_v4**
+    无参数，返回一个v4格式的uuid（字符串）。注意，这只是一个符合格式的伪uuid，并不能完全保证没有任何重复，因为这个过程中的随机性只有2的32次方。
+
+    **time_since_epoch**
+
+    无参数，返回一个数字，表示的是从计算机的epoch开始到现在的毫秒数，注意，epoch未必是从1970年，所以这个只是一个相对时间，通常用来取两次time_since_epoch的时间差
+
+    maock还内建了一个第三方的Lua module，这几个module不需要用require加载，可以直接使用。
     
     这些第三方的module包括:
     
