@@ -117,6 +117,7 @@
      It takes 1 arguments, the key, which is a string; if the key-value pair exists in the global map shared by all worker threads, it will delete the key-value pair from the global map and return the value as a string, otherwise, it returns nil.
      
      **generate_uuid_v4**
+
      It takes no argument, returning 1 string, which is a v4 uuid of 32 bits randomness.
      
      **time_since_epoch**
