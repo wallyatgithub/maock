@@ -96,11 +96,11 @@
     
      An example of the customize_response function:
      
-     function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
-         response_headers_to_send["test"] = "test_value"
-         response_payload_to_send = "hello lua"
-         return response_headers_to_send, response_payload_to_send
-     end
+         function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
+             response_headers_to_send["test"] = "test_value"
+             response_payload_to_send = "hello lua"
+             return response_headers_to_send, response_payload_to_send
+         end
      
      maock has some utility functions builtin, they are:
      
