@@ -102,38 +102,38 @@
         return response_headers_to_send, response_payload_to_send
     end
 
-    maock has some utility functions builtin, they are:
-
-    **store_value**
-
-    It takes 2 arguments, first is the key which is a string, second is also a string which is the value. This function will store the key-value pair into the global map shared by by all worker threads. Note: this global map is protected by a mutex, and would result in performance degradation, so use this only if it is indeed necessary, e.g., data sharing accross differernt worker threads.
-
-    **get_value**
-
-    It takes 1 arguments, the key, which is a string; it returns the value, which is a string, if the key-value exists in the global map shared by all worker threads, otherwise, it returns nil.
-
-    **delete_value**
-
-    It takes 1 arguments, the key, which is a string; if the key-value pair exists in the global map shared by all worker threads, it will delete the key-value pair from the global map and return the value as a string, otherwise, it returns nil.
-
-    **generate_uuid_v4**
-    It takes no argument, returning 1 string, which is a v4 uuid of 32 bits randomness.
-
-    **time_since_epoch**
-
-    time_since_epoch takes no argument, but it returns the milliseconds since the clock's epoch (may NOT necessarily to be 1970)
-
-    maock also has some third party modules builtin, which are directly made available with the need of "require".
-    
-    Currently these modules are made available:
-    
-    protobuf modules: https://github.com/starwing/lua-protobuf/blob/master/README.md
-    
-    rapidjson modules: https://github.com/xpol/lua-rapidjson/blob/master/API.md
-    
-    Other lua modules *written in Lua* can also be loaded with "require", as long as the respective .lua file can be found in current directory or LUA_PATH.
-    
-    Currently, .so lua modules cannot be loaded with "require", but they can be builtin and made available if necessary, like rapidjson.
+     maock has some utility functions builtin, they are:
+     
+     **store_value**
+     
+     It takes 2 arguments, first is the key which is a string, second is also a string which is the value. This function will store the key-value pair into the global map shared by by all worker threads. Note: this global map is protected by a mutex, and would result in performance degradation, so use this only if it is indeed necessary, e.g., data sharing accross differernt worker threads.
+     
+     **get_value**
+     
+     It takes 1 arguments, the key, which is a string; it returns the value, which is a string, if the key-value exists in the global map shared by all worker threads, otherwise, it returns nil.
+     
+     **delete_value**
+     
+     It takes 1 arguments, the key, which is a string; if the key-value pair exists in the global map shared by all worker threads, it will delete the key-value pair from the global map and return the value as a string, otherwise, it returns nil.
+     
+     **generate_uuid_v4**
+     It takes no argument, returning 1 string, which is a v4 uuid of 32 bits randomness.
+     
+     **time_since_epoch**
+     
+     time_since_epoch takes no argument, but it returns the milliseconds since the clock's epoch (may NOT necessarily to be 1970)
+     
+     maock also has some third party modules builtin, which are directly made available with the need of "require".
+     
+     Currently these modules are made available:
+     
+     protobuf modules: https://github.com/starwing/lua-protobuf/blob/master/README.md
+     
+     rapidjson modules: https://github.com/xpol/lua-rapidjson/blob/master/API.md
+     
+     Other lua modules *written in Lua* can also be loaded with "require", as long as the respective .lua file can be found in current directory or LUA_PATH.
+     
+     Currently, .so lua modules cannot be loaded with "require", but they can be builtin and made available if necessary, like rapidjson.
 
   After finish editing the form, copy the data of the left edit box under the "Output" tab, and save into a file, such as maock.json
   
