@@ -92,12 +92,12 @@
      
      下面是该函数的一个例子:
      
-    function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
-        response_headers_to_send["test"] = "test_value"
-        response_payload_to_send = "hello lua"
-        return response_headers_to_send, response_payload_to_send
-    end
-    
+     function customize_response(request_header, request_payload, response_headers_to_send, response_payload_to_send)
+         response_headers_to_send["test"] = "test_value"
+         response_payload_to_send = "hello lua"
+         return response_headers_to_send, response_payload_to_send
+     end
+     
      maock 内建了一些简单的工具函数，可以在lua脚本中调用：
      
      **store_value**
