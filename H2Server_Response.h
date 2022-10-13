@@ -278,7 +278,8 @@ enum VALUE_TYPE
     VAL_INVALID = 0,
     VAL_RANDOM_HEX,
     VAL_TIMESTAMP,
-    VAL_UUID
+    VAL_UUID,
+    VAL_RAW_PAYLOAD
 };
 
 class Argument
@@ -347,6 +348,10 @@ public:
         {
             val_type = VAL_TIMESTAMP;
         }
+        else if (payload_argument.type_of_value == "RawPayload")
+        {
+            val_type = VAL_RAW_PAYLOAD;
+        }
         substring_start = payload_argument.substring_start;
         substring_length = payload_argument.substring_length;
         if (payload_argument.regex.size())
@@ -401,6 +406,11 @@ public:
                 case VAL_UUID:
                 {
                     str = generate_uuid_v4();
+                    break;
+                }
+                case VAL_RAW_PAYLOAD:
+                {
+                    str = *msg.raw_payload;
                     break;
                 }
                 default:
