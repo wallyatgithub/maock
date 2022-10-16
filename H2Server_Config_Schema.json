@@ -86,6 +86,11 @@
         "default": false,
         "type":"boolean"
     },
+    "statistics-file":
+    {
+      "description":"Path to a file to write statistics to. If no file is given here, statistics would be written to stdout",
+      "type":"string"
+    },
     "Service":{
       "description":"service is a list of Request and the affiliated Response candidates. The Request specifies the pattern the incoming request message should have, and if the incoming request message matches the specified pattern, the response is generated from the associated Response candidates; if the incoming request can match more than one patterns, the pattern with more matching rules is chosen",
       "type":"array",
