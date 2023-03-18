@@ -483,7 +483,7 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
         while (true)
         {
             std::stringstream SStream;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(config_schema.statistics_interval));
             if (counter % 10 == 0)
             {
                 SStream << "req-name,   resp-name,   msg-total,   throttled-total, rps,      throttled-rps" << std::endl;

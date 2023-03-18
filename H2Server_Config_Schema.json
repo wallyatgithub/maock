@@ -91,6 +91,11 @@
       "description":"Path to a file to write statistics to. If no file is given here, statistics would be written to stdout",
       "type":"string"
     },
+    "statistics-interval": {
+      "description": "This field specifies a repeated timer in seconds; maock will print the statistics to stdout or to statistics-file upon each timer expiry; default: 1",
+      "default": 1,
+      "type": "integer"
+    },
     "Service":{
       "description":"service is a list of Request and the affiliated Response candidates. The Request specifies the pattern the incoming request message should have, and if the incoming request message matches the specified pattern, the response is generated from the associated Response candidates; if the incoming request can match more than one patterns, the pattern with more matching rules is chosen",
       "type":"array",
