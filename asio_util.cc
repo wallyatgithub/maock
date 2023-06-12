@@ -488,7 +488,7 @@ void start_statistic_thread(std::vector<uint64_t>& totalReqsReceived,
              if (counter % 10 == 0)
              {
                 SStream <<"time, "
-                    << std::endl << std::setw(req_name_width) << "req-name"
+                    << std::setw(req_name_width) << "req-name"
                     << "," << std::setw(resp_name_width) << "resp-name"
                     << "," << std::setw(total_number_width) << "msg-total"
                     << "," << std::setw(total_number_width) << "throttled-total"
